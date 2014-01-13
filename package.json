@@ -1,0 +1,24 @@
+{
+  "name": "kin",
+  "version": "0.1.0",
+  "description": "mori + lisp + sweet.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lantiga/kin.git"
+  },
+  "keywords": [
+    "lisp",
+    "data",
+    "persistent",
+    "clojure",
+    "clojurescript",
+    "macros",
+    "macro"
+  ],
+  "author": "Luca Antiga http://lantiga.github.io",
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "devDependencies": {
+    "sweet.js": "~0.4.0"
+  }
+}
