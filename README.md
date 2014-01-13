@@ -14,9 +14,9 @@ ki is in flux, feel free to test it out but expect glitches.
 
 ## Examples
 
-Require mori
+Require ki (this in turns expands into an appropriate require for mori)
 ```
-var mori = require('mori');
+ki require
 ```
 
 Mori's persistent data structures and Clojure(Script)-like api at your fingertips
@@ -69,7 +69,7 @@ First install [sweet.js](http://sweetjs.org) if you don't have it already
 
     $ npm install -g sweet.js
 
-If you do have it, update it (0.4.0 is required)
+Note that sweet.js 0.4.0 is required, so make sure it's up to date
 
     $ npm update -g sweet.js
 
