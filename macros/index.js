@@ -203,6 +203,8 @@ macro ki {
   }
 }
 
+export ki;
+
 // EXAMPLES
 
 var mori = require('mori');
