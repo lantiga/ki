@@ -1,7 +1,7 @@
 
 # kin
 
-** mori + lisp + sweet.js **
+**mori + lisp + sweet.js**
 
 kin is a lisp with Clojure data structures and semantics that can be intermixed with Javascript code at any level.
 
