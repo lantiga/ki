@@ -18,6 +18,9 @@
   "author": "Luca Antiga http://lantiga.github.io",
   "license": "MIT",
   "readmeFilename": "README.md",
+  "dependencies": {
+    "mori": "~0.2.4"
+  },
   "devDependencies": {
     "sweet.js": "~0.4.0"
   }
