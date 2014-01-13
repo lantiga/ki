@@ -1,10 +1,10 @@
 {
-  "name": "kin",
+  "name": "ki",
   "version": "0.1.0",
   "description": "mori + lisp + sweet.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/lantiga/kin.git"
+    "url": "https://github.com/lantiga/ki.git"
   },
   "keywords": [
     "lisp",
