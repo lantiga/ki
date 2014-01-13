@@ -1,7 +1,7 @@
 
 # ki
 
-**mori + lisp + sweet.js**
+**lisp + mori, sweet.js**
 
 ![ki](http://japanese.berkeley.edu/Pictures/L03/Kanji-ki.jpg)
 
@@ -46,14 +46,20 @@ and you can use ki wherever in js code
 function somefunc (a) {
   ki (clj_to_js (filter (fn [el] (is_even el)) (range a))).forEach(function(el) {
       console.log(el);
-        });
-          return [0, 1, 2, 3, 4].filter(ki (fn [el] (is_even el)));
-          }
-          console.log(somefunc(5));
+      });
+  return [0, 1, 2, 3, 4].filter(ki (fn [el] (is_even el)));
+}
+console.log(somefunc(5));
+// => 0 
+// => 2 
+// => 4 
+// [0 2 4]
+```
 
-          // Like a pro
-          ki (take 6 (map (fn [x] (js x * 2)) (range 1000)))
-          // => (0 2 4 6 8 10)
+Like a pro
+```js
+ki (take 6 (map (fn [x] (js x * 2)) (range 1000)))
+// => (0 2 4 6 8 10)
 ```
 
 
