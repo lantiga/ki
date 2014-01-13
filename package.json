@@ -1,7 +1,7 @@
 {
   "name": "ki",
   "version": "0.1.0",
-  "description": "mori + lisp + sweet.js",
+  "description": "lisp + mori, sweet.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/lantiga/ki.git"
