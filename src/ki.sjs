@@ -124,7 +124,9 @@ macro _fun {
       clj_to_js: true
     }
     if (mori_funs[fun]) {
-      return #{mori.$f}
+      var mori = makeIdent("mori", #{$f});
+      letstx $mori = [mori];
+      return #{$mori.$f}
     }
     return #{$f}
   }
@@ -198,8 +200,13 @@ macro _sexprs {
 }
 
 macro ki {
-  rule { ($x ...) } => {
-    _sexpr ($x ...)
+  case { $n require } => {
+    var mori = makeIdent("mori", #{$n});
+    letstx $mori = [mori];
+    return #{var $mori = require('ki/node_modules/mori')}
+  }
+  case { _ ($x ...) } => {
+    return #{_sexpr ($x ...)}
   }
 }
 
@@ -207,34 +214,34 @@ export ki;
 
 // EXAMPLES
 
-var mori = require('mori');
-
+// ki require
+//
 // Mori at your fingertips
-var foo = ki (vector 1 2 3)
-ki (conj foo 4)
-// => [1 2 3 4]
-
-// Plus lambdas
-ki (map (fn [a] (inc a)) (range 5))
-// => (1 2 3 4 5)
-
-// Interoperability: write js in a ki form
-var fn1 = ki (js function (a,b) { return a + b + 2; })
-
-// at any level - e.g. you can use infix where it makes sense
-var fn2 = ki (fn [a b] (js a + b + 2))
-
-// and you can use ki wherever in js code
-function somefunc (a) {
-  ki (clj_to_js (filter (fn [el] (is_even el)) (range a))).forEach(function(el) { 
-    console.log(el);
-  });
-  return [0, 1, 2, 3, 4].filter(ki (fn [el] (is_even el)));
-}
-console.log(somefunc(5));
-
-// Like a pro
-ki (take 6 (map (fn [x] (js x * 2)) (range 1000)))
+//var foo = ki (vector 1 2 3)
+//ki (conj foo 4)
+//// => [1 2 3 4]
+//
+//// Plus lambdas
+//ki (map (fn [a] (inc a)) (range 5))
+//// => (1 2 3 4 5)
+//
+//// Interoperability: write js in a ki form
+//var fn1 = ki (js function (a,b) { return a + b + 2; })
+//
+//// at any level - e.g. you can use infix where it makes sense
+//var fn2 = ki (fn [a b] (js a + b + 2))
+//
+//// and you can use ki wherever in js code
+//function somefunc (a) {
+//  ki (clj_to_js (filter (fn [el] (is_even el)) (range a))).forEach(function(el) { 
+//    console.log(el);
+//  });
+//  return [0, 1, 2, 3, 4].filter(ki (fn [el] (is_even el)));
+//}
+//console.log(somefunc(5));
+//
+//// Like a pro
+//ki (take 6 (map (fn [x] (js x * 2)) (range 1000)))
 // => (0 2 4 6 8 10)
 
 
