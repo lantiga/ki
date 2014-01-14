@@ -8,14 +8,104 @@ macro _args {
   rule { ($arg) } => {
     _sexpr $arg
   }
+  rule { ($arg1.$arg2) } => {
+    _sexpr $arg1.$arg2
+  }
+  rule { ($arg1.$arg2.$arg3) } => {
+    _sexpr $arg1.$arg2.$arg3
+  }
+  rule { ($arg1.$arg2.$arg3.$arg4) } => {
+    _sexpr $arg1.$arg2.$arg3.$arg4
+  }
+  rule { ($arg1.$arg2.$arg3.$arg4.$arg5) } => {
+    _sexpr $arg1.$arg2.$arg3.$arg4.$arg5
+  }
+  rule { ($arg1.$arg2.$arg3.$arg4.$arg5.$arg6) } => {
+    _sexpr $arg1.$arg2.$arg3.$arg4.$arg5.$arg6
+  }
   rule { ($arg $args ...) } => {
     _sexpr $arg, _args ($args ...)
   }
+  rule { ($arg1.$arg2 $args ...) } => {
+    _sexpr $arg1.$arg2, _args ($args ...)
+  }
+  rule { ($arg1.$arg2.$arg3 $args ...) } => {
+    _sexpr $arg1.$arg2.$arg3, _args ($args ...)
+  }
+  rule { ($arg1.$arg2.$arg3.$arg4 $args ...) } => {
+    _sexpr $arg1.$arg2.$arg3.$arg4, _args ($args ...)
+  }
+  rule { ($arg1.$arg2.$arg3.$arg4.$arg5 $args ...) } => {
+    _sexpr $arg1.$arg2.$arg3.$arg4.$arg5, _args ($args ...)
+  }
+  rule { ($arg1.$arg2.$arg3.$arg4.$arg5.$arg6 $args ...) } => {
+    _sexpr $arg1.$arg2.$arg3.$arg4.$arg5.$arg6, _args ($args ...)
+  }
 }
 
+//macro _args_case {
+//  case { _ ($args ...) } => {
+//
+//    var arg = #{$args ...}[0];
+//
+//    var offset = 1;
+//
+//    //BooleanLiteral: 1,
+//    //EOF: 2,
+//    //Identifier: 3,
+//    //Keyword: 4,
+//    //NullLiteral: 5,
+//    //NumericLiteral: 6,
+//    //Punctuator: 7,
+//    //StringLiteral: 8,
+//    //RegularExpression: 9,
+//    //Template: 10,
+//    //Delimiter: 11
+//
+//    if (!(arg.token.type == 3 || (arg.token.type == 4 && arg.token.value == 'this'))) {
+//
+//      letstx $arg = [arg];
+//      var rest = #{$args ...}.slice(offset);
+//      if (rest.length == 0) {
+//        return #{_sexpr $arg}
+//      }
+//      letstx $rest ... = rest;
+//      return #{_sexpr $arg, _args ($rest ...)}
+//    }
+//
+//    var ident = arg.token.value;
+//    var currArg;
+//
+//    while (#{$args ...}[offset]) {
+//      var dot = #{$args ...}[offset];
+//      if (!(dot.token.type == 7 && dot.token.value == '.')) {
+//        break;
+//      }
+//      var next = #{$args ...}[offset+1];
+//      ident += '.' + next.token.value;
+//      offset += 2;
+//    }
+//
+//    letstx $arg = [makeIdent(ident,#{$args ...})];
+//    var rest = #{$args ...}.slice(offset);
+//    if (rest.length == 0) {
+//      return #{_sexpr $arg}
+//    }
+//    letstx $rest ... = rest;
+//    return #{_sexpr $arg, _args ($rest ...)}
+//  }
+//}
+
 macro _fun {
-  case { _ ($f) } => {
-    var fun = unwrapSyntax(#{$f});
+  case { _ ((js $x ...)) } => {
+    return #{$x ...}
+  }
+  case { _ ($f(.)...) } => {
+    var farr = #{$f(.)...};
+    var fun = '';
+    for (var i=0; i<farr.length; i++) {
+      fun += farr[i].token.value;
+    }
     var mori_funs = {
       // Fundamentals
       equals: true,
@@ -124,11 +214,11 @@ macro _fun {
       clj_to_js: true
     }
     if (mori_funs[fun]) {
-      var mori = makeIdent("mori", #{$f});
+      var mori = makeIdent("mori", #{$f(.)...});
       letstx $mori = [mori];
-      return #{$mori.$f}
+      return #{$mori.$f(.)...}
     }
-    return #{$f}
+    return #{$f(.)...}
   }
 }
 
@@ -151,32 +241,95 @@ macro _vals {
 }
 
 macro _sexpr {
+
   rule { () } => { 
   }
+
   rule { (fn [$args ...] $sexprs ...) } => {
     function ($args(,)...) {
       _return_sexprs ($sexprs ...)
     }
   }
-  //rule { (letv [$($k $v) ...] $sexprs ...) } => {
-  //  function ( _keys($($k $v) ...) ) {
-  //    _return_sexprs ($sexprs ...)
-  //  }(_vals ($($k $v) ...))
-  //}
-  rule { (prn $args ...) } => {
-    console.log(_sexprs($args ...))
+
+  // TODO: use truthy here
+  rule { (if $cond $sthen $selse) } => {
+    _sexpr $cond ? _sexpr $sthen : _sexpr $selse
   }
+  rule { (when $cond $sthen) } => {
+    _sexpr $cond ? _sexpr $sthen : undefined
+  }
+
+  // TODO: use truthy here
+  rule { (cond $cond1 $body1 $rest ...) } => {
+    _sexpr $cond1 ? _sexpr $body1 : _sexpr (cond $rest ...)
+  }
+  rule { (cond) } => {
+    undefined
+  }
+
+  rule { (and $sexpr1 $sexprs ...) } => {
+    _sexpr $sexpr1 && _sexpr (and $sexprs ...)
+  }
+  rule { (and) } => {
+    true
+  }
+
+  rule { (or $sexpr1 $sexprs ...) } => {
+    _sexpr $sexpr1 || _sexpr (or $sexprs ...)
+  }
+  rule { (or) } => {
+    false
+  }
+
+  rule { (letv [$k $v $rest ...] $sexprs ...) } => {
+    (function ($k) {
+      return (_sexpr (letv [$rest ...] $sexprs ...));
+    })($v)
+  }
+  rule { (letv [] $sexprs ...) } => {
+    (function () {
+      _return_sexprs ($sexprs ...)
+    })()
+  }
+
+  rule { (do $sexprs ...) } => {
+    (function () {
+      _return_sexprs ($sexprs ...)
+    })()
+  }
+
+  rule { (prn $args ...) } => {
+    console.log(_csep_sexprs($args ...))
+  }
+
   rule { (js $body ...) } => {
     $body ...
   }
-  rule { ($f) } => {
-    _fun($f)()
+
+  rule { ($f(.)...) } => {
+    _fun($f(.)...)()
   }
-  rule { ($f $arg) } => {
-    _fun($f)(_args($arg))
+
+  // fix parsing issue in sweet.js in order
+  // to express the following clauses in one
+  // same for _args
+  rule { ($f1.$f2.$f3.$f4.$f5.$f6 $args ...) } => {
+    _fun($f1.$f2.$f3.$f4.$f5.$f6)( _args($args ...))
   }
-  rule { ($f $arg $args ...) } => {
-    _fun($f)( _args($arg) , _args($args ...))
+  rule { ($f1.$f2.$f3.$f4.$f5 $args ...) } => {
+    _fun($f1.$f2.$f3.$f4.$f5)( _args($args ...))
+  }
+  rule { ($f1.$f2.$f3.$f4 $args ...) } => {
+    _fun($f1.$f2.$f3.$f4)( _args($args ...))
+  }
+  rule { ($f1.$f2.$f3 $args ...) } => {
+    _fun($f1.$f2.$f3)( _args($args ...))
+  }
+  rule { ($f1.$f2 $args ...) } => {
+    _fun($f1.$f2)( _args($args ...))
+  }
+  rule { ($f $args ...) } => {
+    _fun($f)( _args($args ...))
   }
   rule { $x } => { $x }
 }
@@ -199,57 +352,38 @@ macro _sexprs {
   }
 }
 
+macro _csep_sexprs {
+  rule { ($sexpr) } => {
+    _sexpr $sexpr
+  }
+  rule { ($sexpr $sexprs ...) } => {
+    _sexpr $sexpr, _sexprs ($sexprs ...)
+  }
+}
+
+
 macro ki {
-  case { $n require } => {
+  case { $n require core} => {
     var mori = makeIdent("mori", #{$n});
+    var _ki = makeIdent("_ki", #{$n});
     letstx $mori = [mori];
-    return #{var $mori = require('ki/node_modules/mori')}
+    letstx $_ki = [_ki];
+    return #{var $_ki = {}; var $mori = require('ki/node_modules/mori'); }
+  }
+  case { _ require $module ... as $name} => {
+    var module = #{$module ...};
+    var module_name = '';
+    for (var i=0; i<module.length; i++) {
+      module_name += module[i].token.value;
+    }
+    letstx $module_name = [makeValue(module_name,#{$name})];
+    return #{var $name = require($module_name)}
   }
   case { _ ($x ...) } => {
-    return #{_sexpr ($x ...)}
+    return #{(function() { return (_sexpr ($x ...)); })()}
   }
 }
 
 export ki;
-
-// EXAMPLES
-
-// ki require
-//
-// Mori at your fingertips
-//var foo = ki (vector 1 2 3)
-//ki (conj foo 4)
-//// => [1 2 3 4]
-//
-//// Plus lambdas
-//ki (map (fn [a] (inc a)) (range 5))
-//// => (1 2 3 4 5)
-//
-//// Interoperability: write js in a ki form
-//var fn1 = ki (js function (a,b) { return a + b + 2; })
-//
-//// at any level - e.g. you can use infix where it makes sense
-//var fn2 = ki (fn [a b] (js a + b + 2))
-//
-//// and you can use ki wherever in js code
-//function somefunc (a) {
-//  ki (clj_to_js (filter (fn [el] (is_even el)) (range a))).forEach(function(el) { 
-//    console.log(el);
-//  });
-//  return [0, 1, 2, 3, 4].filter(ki (fn [el] (is_even el)));
-//}
-//console.log(somefunc(5));
-//
-//// Like a pro
-//ki (take 6 (map (fn [x] (js x * 2)) (range 1000)))
-// => (0 2 4 6 8 10)
-
-
-// TODO: 
-// * letv (impl. above doesn't work due to parsing quirks)
-// * literals
-// * math expressions -> use infix (SOLVED)
-// * destructuring
-// * threading macros
 
 
