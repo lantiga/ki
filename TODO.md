@@ -1,8 +1,6 @@
 
 # ki roadmap
 
-ki has some potential 
-
 ## 0.2.0 Make it a viable language
 
 * **DONE** enclose every ki call in (function() {})(), if this doesn't break hygiene tricks
