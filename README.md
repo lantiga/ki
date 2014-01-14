@@ -12,11 +12,20 @@ ki is a thin macro layer on top of [mori](https://github.com/swannodette/mori) p
 ki is in flux, feel free to test it out but expect glitches.
 
 
+## Currently available functions / special forms
+
+All of [mori](https://github.com/swannodette/mori) 
+
+The following (growing) list of functions / special forms
+```clojure
+fn if when cond and or letv do prn js
+```
+
 ## Examples
 
 Require ki (this in turns expands into an appropriate require for mori)
 ```
-ki require
+ki require core
 ```
 
 Mori's persistent data structures and Clojure(Script)-like api at your fingertips
