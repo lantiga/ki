@@ -17,8 +17,8 @@ ki is in flux, feel free to test it out but expect glitches.
 All of [mori](https://github.com/swannodette/mori) 
 
 The following (growing) list of functions / special forms
-```clojure
-fn if when cond and or letv do prn js
+```
+fn if when cond and or not eq neq letv do def defn nil truthy prn js
 ```
 
 ## Examples
