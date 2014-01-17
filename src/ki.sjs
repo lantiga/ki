@@ -20,131 +20,32 @@ macro _fun {
   case { _ ((js $x ...)) } => {
     return #{$x ...}
   }
+  case { _ ($ns/$f) } => {
+    return #{ _ki.namespaces.$ns.vars.$f };
+  }
+  case { _ ($f) } => {
+    return #{$f}; 
+  }
   case { _ ($f(.)...) } => {
     var farr = #{$f(.)...};
+    if (farr.length == 1) {
+      letstx $fn = [farr[0]];
+      //return #{_sexpr $fn};
+      return #{$fn};
+    }
     var fun = '';
-    for (var i=0; i<farr.length; i++) {
-      fun += farr[i].token.value;
-    }
-    var mori_funs = {
-      // Fundamentals
-      equals: true,
-      hash: true,
-      // Type predicates
-      is_list: true,
-      is_seq: true,
-      is_vector: true,
-      is_map: true,
-      is_set: true,
-      is_collection: true,
-      is_sequential: true,
-      is_associative: true,
-      is_counted: true,
-      is_indexed: true,
-      is_reduceable: true,
-      is_seqable: true,
-      is_reversible: true,
-      // Collections
-      list: true,
-      vector: true,
-      hash_map: true,
-      set: true,
-      sorted_set: true,
-      range: true,
-      // Collection operations
-      conj: true,
-      into: true,
-      assoc: true,
-      dissoc: true,
-      empty: true,
-      get: true,
-      get_in: true,
-      has_key: true,
-      find: true,
-      nth: true,
-      last: true,
-      assoc_in: true,
-      update_in: true,
-      count: true,
-      is_empty: true,
-      peek: true,
-      pop: true,
-      zipmap: true,
-      reverse: true,
-      // Vector operations
-      subvec: true,
-      // Hash map operations
-      keys: true,
-      vals: true,
-      // Set operations
-      disj: true,
-      union: true,
-      intersection: true,
-      difference: true,
-      is_subset: true,
-      is_superset: true,
-      // Sequences
-      first: true,
-      rest: true,
-      seq: true,
-      cons: true,
-      concat: true,
-      flatten: true,
-      into_array: true,
-      each: true,
-      map: true,
-      mapcat: true,
-      filter: true,
-      remove: true,
-      reduce: true,
-      reduce_kv: true,
-      take: true,
-      take_while: true,
-      drop: true,
-      drop_while: true,
-      some: true,
-      every: true,
-      sort: true,
-      sort_by: true,
-      interpose: true,
-      interleave: true,
-      iterate: true,
-      repeat: true,
-      repeatedly: true,
-      partition: true,
-      partition_by: true,
-      group_by: true,
-      // Helpers
-      prim_seq: true,
-      identity: true,
-      constantly: true,
-      inc: true,
-      dec: true,
-      sum: true,
-      is_even: true,
-      is_odd: true,
-      comp: true,
-      juxt: true,
-      knit: true,
-      pipeline: true,
-      partial: true,
-      curry: true,
-      fnil: true,
-      js_to_clj: true,
-      clj_to_js: true
-    }
+    farr.forEach(function(e) { return fun += farr[i].token.value; });
     letstx $fun = [makeIdent(fun,#{$f(.)...})];
-    if (mori_funs[fun]) {
-      return #{_ki._modules.mori.$fun}
-    }
-    return #{ (function() { return _ki._vars.$fun === undefined ? $fun : _ki._vars.$fun; })() }
-    //return #{$fun}
+    return #{$fun};
   }
 }
 
 macro _args {
   rule { ($arg) } => {
     _sexpr $arg
+  }
+  rule { ($ns/$arg) } => {
+    _sexpr _ki.namespaces.$ns.vars.$arg
   }
   rule { ($arg1.$arg2) } => {
     _sexpr $arg1.$arg2
@@ -188,32 +89,71 @@ macro _x {
   case { $ctx undefined } => {
     throwSyntaxError('ki','<undefined> is not a valid identifier, use nil',#{$ctx})
   }
+  case { _ nil } => {
+    return #{null}
+  }
   case { _ $x} => {
-    if (#{$x}[0].token.type == 3) {
-      return #{ _ki._vars.$x === undefined ? $x : _ki._vars.$x }
-    }
     return #{$x}
   }
 }
 
+macro _ns {
+  case { _ $ns $sexprs ... } => {
+    var nsname = unwrapSyntax(#{$ns});
+    letstx $nsname = [makeValue(nsname,#{$ns})];
+    return #{
+      (function () {
+        if (_ki.namespaces.$ns === undefined) {
+          _ki.namespaces.$ns = { vars: {} };
+        }
+        this['_ki_ns_name'] = $nsname;
+        this['_ki_ns_ctx'] = this;
+        _ki.intern.bind(this)(_ki.modules.core);
+        _ki.intern.bind(this)(_ki.modules.mori);
+        _ki.intern.bind(this)(_ki.namespaces[_ki_ns_name].vars);
+        _return_sexprs ($sexprs ...);
+      })()
+    }
+  }
+}
+
+macro _use {
+  case { _ $modules ...} => {
+    return #{
+      for (var m in $modules ...) {
+        _ki.intern.bind(_ki_ns_ctx)(_ki.modules[m]);
+      }
+    }
+  }
+}
+
 macro _def {
-  case { $ctx $n $sexpr } => {
+  case { _ $n $sexpr } => {
     var varname = unwrapSyntax(#{$n});
     letstx $varname = [makeValue(varname,#{$n})];
     return #{
-      (function() {
-        if (_ki._vars.$n !== undefined) {
-          throw new Error('Symbol <' + $varname + '> has already been defined')
-        }
-        _ki._vars.$n = _sexpr $sexpr
-      })();
-    }
+      //(function($n) {
+      var $n = _sexpr $sexpr;
+      _ki_ns_ctx[$varname] = _sexpr $sexpr;
+      _ki.namespaces[_ki_ns_name].vars.$n = _ki_ns_ctx[$varname]
+      //_ki_ns_ctx.$n = _sexpr $sexpr;
+      //_ki.namespaces[_ki_ns_name].vars.$n = _ki_ns_ctx.$n
+      //})($n) 
+    };
   }
 }
 
 macro _sexpr {
 
   rule { () } => { 
+  }
+  
+  rule { (ns $ns $sexprs ...) } => {
+    _ns $ns $sexprs ...
+  }
+
+  rule { (use $modules ...) } => {
+    _use $modules ...
   }
 
   rule { (fn [$args ...] $sexprs ...) } => {
@@ -254,6 +194,7 @@ macro _sexpr {
   rule { (if $cond $sthen $selse) } => {
     _sexpr (truthy $cond) ? _sexpr $sthen : _sexpr $selse
   }
+
   rule { (when $cond $sthen) } => {
     _sexpr (truthy $cond) ? _sexpr $sthen : undefined
   }
@@ -285,10 +226,12 @@ macro _sexpr {
     false
   }
 
+  // reimplement by using scope more effectively and 
+  // avoid the nested function defs
   rule { (letv [$k $v $rest ...] $sexprs ...) } => {
     (function ($k) {
       return (_sexpr (letv [$rest ...] $sexprs ...));
-    })($v)
+    })(_sexpr $v)
   }
   rule { (letv [] $sexprs ...) } => {
     (function () {
@@ -306,12 +249,9 @@ macro _sexpr {
     _def $n $sexpr
   }
 
+  // TODO: docstring
   rule { (defn $n [$args ...] $sexprs ...) } => {
     _sexpr (def $n (fn [$args ...] $sexprs ...))
-  }
-
-  rule { (prn $args ...) } => {
-    console.log(_csep_sexprs($args ...))
   }
 
   rule { (js $body ...) } => {
@@ -340,21 +280,21 @@ macro _sexpr {
   rule { ($f1.$f2 $args ...) } => {
     _fun($f1.$f2)( _args($args ...))
   }
+  rule { ($ns/$f $args ...) } => {
+    _fun($ns/$f)( _args($args ...))
+  }
   rule { ($f $args ...) } => {
     _fun($f)( _args($args ...))
-  }
-  rule { nil } => { 
-    null 
   }
   rule { $x } => { _x $x }
 }
 
 macro _return_sexprs {
   rule { ($sexpr) } => {
-    return _sexpr $sexpr
+    return _sexpr $sexpr;
   }
   rule { ($sexpr $sexprs ...) } => {
-    _sexpr $sexpr _return_sexprs ($sexprs ...)
+    _sexpr $sexpr; _return_sexprs ($sexprs ...)
   }
 }
 
@@ -367,39 +307,52 @@ macro _sexprs {
   }
 }
 
-macro _csep_sexprs {
-  rule { ($sexpr) } => {
-    _sexpr $sexpr
-  }
-  rule { ($sexpr $sexprs ...) } => {
-    _sexpr $sexpr, _sexprs ($sexprs ...)
-  }
-}
-
-
 macro ki {
-  case { $n require core} => {
+  case { _ require core} => {
     return #{
       _ki = {
-        _modules: {},
-        _vars: {}
+        intern: function(obj) {
+          for (var e in obj) {
+            this[e] = obj[e];
+          }
+        },
+        namespaces: {},
+        modules: {
+          core: {
+            prn: console.log
+          },
+          mori: require('ki/node_modules/mori')
+        }
       }; 
-      _ki._modules.mori = require('ki/node_modules/mori'); 
     }
   }
   case { _ require $module ... as $name} => {
     var module = #{$module ...};
     var module_name = '';
-    for (var i=0; i<module.length; i++) {
-      module_name += module[i].token.value;
-    }
+    module.forEach(function(e) { module_name += e.token.value; });
     letstx $module_name = [makeValue(module_name,#{$name})];
-    return #{_ki._modules.$name = require($module_name)}
+    return #{_ki.modules.$name = require($module_name)}
   }
-  case { _ ($x ...) } => {
+
+  case { $ki (ns $ns $sexprs ...) } => {
+    return #{ _sexpr (ns $ns $sexprs ...) }
+  }
+
+  case { $ki ($x ...) } => {
+    // TODO: decide if the anonymous namespace
+    // is persistent or volatile between ki forms
     return #{
       (function() { 
-        return (_sexpr ($x ...)); })()
+        if (_ki.namespaces._anon === undefined) {
+          _ki.namespaces._anon = { vars: {} };
+        }
+        this['_ki_ns_name'] = '_anon';
+        this['_ki_ns_ctx'] = this;
+        _ki.intern.bind(this)(_ki.modules.core);
+        _ki.intern.bind(this)(_ki.modules.mori);
+        _ki.intern.bind(this)(_ki.namespaces[_ki_ns_name].vars);
+        return (_sexpr ($x ...)); 
+      })()
     }
   }
 }

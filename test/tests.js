@@ -98,3 +98,27 @@ console.log(
 ki (or 0 2 3)
 )
 
+var a = 1;
+console.log(
+ki 
+(ns foo 
+ (def a 2)
+ (prn a)
+ (letv [a 3]
+  (prn (inc a)))
+ (letv [inc (fn [x] 'fake inc!')]
+  (prn (inc a)))
+ (prn a)
+ (def a 5)
+ (def increase inc)
+ (prn a)
+ (letv [a 3]
+  (inc a)))
+);
+
+ki (prn foo/a)
+ki (prn (foo/increase foo/a))
+
+console.log(a)
+
+
