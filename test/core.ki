@@ -1,0 +1,12 @@
+
+var expect = require("expect.js");
+
+ki require core
+
+describe("mori", function() {
+  it("should make mori available", function() {
+    var mori = require("mori");
+    expect(ki (vector 1 2 3)).to.eql(mori.vector(1,2,3))
+  });
+});
+

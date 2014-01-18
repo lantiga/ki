@@ -23,6 +23,9 @@
     "mori": "~0.2.4"
   },
   "devDependencies": {
-    "sweet.js": "~0.4.0"
+    "sweet.js": "~0.4.0",
+    "mocha": "~1.3.2",
+    "expect.js": "~0.2.0",
+    "grunt-mocha-test": "~0.7.0"
   }
 }

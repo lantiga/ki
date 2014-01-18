@@ -25,7 +25,7 @@
 * **DONE** ns: every ki () form should introduce a namespace, either anonymous 
   (no ns form) or named, ki (ns foobar (def ...))
   Every def (and defn) should define a var as well as place the value in
-  the _ki object, so that it can be reused in other ki blocks with different 
+  the _ki object, so that it can be used/interned in other ki blocks with different 
   namespaces (or other ki blocks with the same namespace).
 * **DONE** fully qualified identifiers foo/bar
 * **DONE** use: intern all functions of a module (TODO: warn on aliasing)
