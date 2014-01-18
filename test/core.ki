@@ -1,12 +1,44 @@
 
 var expect = require("expect.js");
 
-ki require core
 
-describe("mori", function() {
+describe("ki require core", function() {
+
   it("should make mori available", function() {
+    ki require core
     var mori = require("mori");
     expect(ki (vector 1 2 3)).to.eql(mori.vector(1,2,3))
   });
+
 });
 
+describe("ki form", function() {
+
+  it("should allow to call js functions", function() {
+    ki require core
+    var f0 = function() { return 1; }
+    var f1 = function(a) { return a; }
+    var f2 = function(a, b) { return [a, b]; }
+    expect(ki (f0)).to.eql(1);
+    expect(ki (f1 1)).to.eql(1);
+    expect(ki (f2 1 2)).to.eql([1,2]);
+  });
+
+  it("should allow to use attribute access notation as function name", function() {
+    ki require core
+    var foo0 = { bar: function() { return 1; } }
+    var foo1 = { bar: function(a) { return a; } }
+    var foo2 = { bar: function(a,b) { return [a, b]; } }
+    var goo0 = { bar: { baz : function() { return 1; } } }
+    var goo1 = { bar: { baz : function(a) { return a; } } }
+    var goo2 = { bar: { baz : function(a, b) { return [a, b]; } } }
+    expect(ki (foo0.bar)).to.eql(1);
+    expect(ki (foo1.bar 1)).to.eql(1);
+    expect(ki (foo2.bar 1 2)).to.eql([1,2]);
+    expect(ki (goo0.bar.baz)).to.eql(1);
+    expect(ki (goo1.bar.baz 1)).to.eql(1);
+    expect(ki (goo2.bar.baz 1 2)).to.eql([1,2]);
+  });
+
+
+});

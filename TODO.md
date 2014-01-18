@@ -33,7 +33,7 @@
 * **DONE** support js object creation with js new, or just decide to leave it as 
   (js new Date) I like this option better (we should document it and that's it)
 
-* testing
+* **IN PROGRESS** testing
 
 * blog
 * create something like http://kanaka.github.io/clojurescript/web/synonym.html

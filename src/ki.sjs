@@ -33,10 +33,7 @@ macro _fun {
       //return #{_sexpr $fn};
       return #{$fn};
     }
-    var fun = '';
-    farr.forEach(function(e) { return fun += farr[i].token.value; });
-    letstx $fun = [makeIdent(fun,#{$f(.)...})];
-    return #{$fun};
+    return #{$f(.)...};
   }
 }
 
