@@ -19,7 +19,7 @@
 * **DONE** do
 * **DONE** def defn 
 * threading macros (tfirst, tlast)
-* loop, recur, while
+* **DONE** loop, recur, while
 * **DONE** nil 
 * **DONE** define truthiness (in line with ClojureScript and Mori)
 * **DONE** ns: every ki () form should introduce a namespace, either anonymous 
@@ -32,6 +32,7 @@
 * fn arity check and multiple arities
 * **DONE** support js object creation with js new, or just decide to leave it as 
   (js new Date) I like this option better (we should document it and that's it)
+* **DONE** data literals
 
 * **IN PROGRESS** testing
 
@@ -42,7 +43,6 @@
 ## 0.3.0 Add the nice to have
 
 * add "application/ki" script type and in-browser expansion (browserify?)
-* data literals
 * destructuring
 * named parameters and defaults
 * regular expressions

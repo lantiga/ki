@@ -148,6 +148,31 @@ macro _def {
   }
 }
 
+macro _loop_letv {
+  rule { ([$k $v $rest ...] $i $vals $sexprs ...) } => {
+    (function ($k) {
+      return _loop_letv ([$rest ...] ($i+1) $vals $sexprs ...);
+    })($vals === undefined ? $v : $vals[$i])
+  }
+  rule { ([] $i $vals $sexprs ...) } => {
+    (function () {
+      _return_sexprs ($sexprs ...)
+    })()
+  }
+}
+macro _loop {
+  rule { [$kv ...] $sexprs ... } => {
+    (function() {
+      var res = {};
+      do {
+        res = _loop_letv ([$kv ...] 0 (res._ki_vals) $sexprs ...);
+      }
+      while (res._ki_recur);
+      return res;
+    })()
+  }
+}
+
 macro _sexpr {
 
   rule { () } => { 
@@ -168,10 +193,9 @@ macro _sexpr {
   }
 
   rule { (truthy $sexpr) } => {
-    (function () {
-      var tmp = _sexpr $sexpr;
-      return tmp === false || tmp == null ? false : true;
-    })()
+    (function (v) {
+      return v === false || v == null ? false : true;
+    })(_sexpr $sexpr)
   }
 
   rule { (falsey $sexpr) } => {
@@ -197,15 +221,30 @@ macro _sexpr {
   }
 
   rule { (if $cond $sthen $selse) } => {
-    _sexpr (truthy $cond) ? _sexpr $sthen : _sexpr $selse
+    (function() {
+      if (_sexpr (truthy $cond)) {
+        return _sexpr $sthen;
+      }
+      return _sexpr $selse;
+    })()
   }
 
   rule { (when $cond $sthen) } => {
-    _sexpr (truthy $cond) ? _sexpr $sthen : undefined
+    (function() {
+      if (_sexpr (truthy $cond)) {
+        return _sexpr $sthen;
+      }
+      return;
+    })()
   }
 
   rule { (cond $cond1 $body1 $rest ...) } => {
-    _sexpr (truthy $cond1) ? _sexpr $body1 : _sexpr (cond $rest ...)
+    (function() {
+      if (_sexpr (truthy $cond1)) {
+        return _sexpr $body1;
+      }
+      return _sexpr (cond $rest ...);
+    })()
   }
   rule { (cond) } => {
     undefined
@@ -231,6 +270,8 @@ macro _sexpr {
     false
   }
 
+  // FIXME: $v cannot be in js object property access notation
+  // at least until we solve the sweet.js issue
   rule { (letv [$k $v $rest ...] $sexprs ...) } => {
     (function ($k) {
       return (_sexpr (letv [$rest ...] $sexprs ...));
@@ -248,6 +289,22 @@ macro _sexpr {
     })()
   }
 
+  rule { (while $cond $sexpr) } => {
+    (function () {
+      while (_sexpr (truthy $cond)) {
+        _sexpr $sexpr;
+      }
+    })()
+  }
+
+  rule { (loop $kvs $sexprs ...) } => {
+    _loop $kvs $sexprs ...
+  }
+
+  rule { (recur $els ...) } => {
+    {_ki_recur: true, _ki_vals: [_els ($els ...)]}
+  }
+
   rule { (def $n $sexpr) } => {
     _def $n $sexpr
   }
@@ -256,6 +313,18 @@ macro _sexpr {
   rule { (defn $n [$els ...] $sexprs ...) } => {
     _sexpr (def $n (fn [$els ...] $sexprs ...))
   }
+  
+  // TODO
+  //rule { (threadf $els ...) } => {
+  //}
+
+  // TODO
+  //rule { (threadl $els ...) } => {
+  //}
+
+  rule { (prn $els ...) } => {
+    console.log(_els ($els ...))
+  }
 
   rule { (js $body ...) } => {
     $body ...
@@ -263,6 +332,14 @@ macro _sexpr {
 
   rule { ($els ...) } => {
     _call ($els ...)
+  }
+
+  rule { [$els ...] } => {
+    _sexpr (vector $els ...)
+  }
+
+  rule { {$els ...} } => {
+    _sexpr (hash_map $els ...)
   }
 
   rule { $x } => { _x $x }
@@ -298,7 +375,6 @@ macro ki {
         namespaces: {},
         modules: {
           core: {
-            prn: console.log
           },
           mori: require('ki/node_modules/mori')
         }

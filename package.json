@@ -10,6 +10,7 @@
     "lisp",
     "data",
     "persistent",
+    "functional",
     "clojure",
     "clojurescript",
     "macros",
