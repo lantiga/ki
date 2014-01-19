@@ -29,16 +29,18 @@
   namespaces (or other ki blocks with the same namespace).
 * **DONE** fully qualified identifiers foo/bar
 * **DONE** use: intern all functions of a module (TODO: warn on aliasing)
-* fn arity check and multiple arities
 * **DONE** support js object creation with js new, or just decide to leave it as 
   (js new Date) I like this option better (we should document it and that's it)
 * **DONE** data literals
+* fn arity check and multiple arities
+* chaining (as in sibilantjs)
 
 * **IN PROGRESS** testing
 
 * blog
 * create something like http://kanaka.github.io/clojurescript/web/synonym.html
 * look at https://github.com/jbr/sibilant http://sibilantjs.info/
+  and http://jeditoolkit.com/try-wisp/
 
 ## 0.3.0 Add the nice to have
 

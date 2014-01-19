@@ -1,5 +1,5 @@
 /**
- * ki: a sane lisp for your JavaScript
+ * ki: a lisp for your JavaScript
  * MIT license http://www.opensource.org/licenses/mit-license.php/
  * Copyright (C) 2014 Luca Antiga http://lantiga.github.io
  */

@@ -14,7 +14,7 @@ ki is in flux, feel free to test it out but expect glitches.
 
 ## Currently available functions / special forms
 
-All of [mori](https://github.com/swannodette/mori) 
+All of [mori](https://github.com/swannodette/mori).
 
 The following (growing) list of functions / special forms
 ```

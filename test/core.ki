@@ -4,6 +4,11 @@ var expect = require("expect.js");
 
 describe("ki require core", function() {
 
+  it("should create a _ki object", function() {
+    ki require core
+    expect(typeof _ki).to.not.eql('undefined')
+  });
+
   it("should make mori available", function() {
     ki require core
     var mori = require("mori");
@@ -38,6 +43,17 @@ describe("ki form", function() {
     expect(ki (goo0.bar.baz)).to.eql(1);
     expect(ki (goo1.bar.baz 1)).to.eql(1);
     expect(ki (goo2.bar.baz 1 2)).to.eql([1,2]);
+  });
+
+  it("should allow to use attribute access notation as function argument", function() {
+    ki require core
+    var goo1 = { bar: { baz : function(a) { return a; } } }
+    var goo2 = { bar: { baz : function(a, b) { return [a, b]; } } }
+    var goo3 = { bar: { baz : function(a, b, c) { return [a, b, c]; } } }
+    var data = { a: { b: 0 }}
+    expect(ki (goo1.bar.baz data.a.b)).to.eql(0);
+    expect(ki (goo2.bar.baz data.a.b 1)).to.eql([0,1]);
+    expect(ki (goo3.bar.baz data.a.b 1 data.a.b)).to.eql([0,1,0]);
   });
 
 
