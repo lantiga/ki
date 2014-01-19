@@ -16,6 +16,31 @@
 //Template: 10,
 //Delimiter: 11
 
+macro _call {
+  rule { ($el1.$el2.$el3.$el4.$el5.$el6 $els ...) } => {
+    _sexpr $el1.$el2.$el3.$el4.$el5.$el6 (_els ($els ...))
+  }
+  rule { ($el1.$el2.$el3.$el4.$el5 $els ...) } => {
+    _sexpr $el1.$el2.$el3.$el4.$el5 (_els ($els ...))
+  }
+  rule { ($el1.$el2.$el3.$el4 $els ...) } => {
+    _sexpr $el1.$el2.$el3.$el4 (_els ($els ...))
+  }
+  rule { ($el1.$el2.$el3 $els ...) } => {
+    _sexpr $el1.$el2.$el3 (_els ($els ...))
+  }
+  rule { ($el1.$el2 $els ...) } => {
+    _sexpr $el1.$el2 (_els ($els ...))
+  }
+  rule { ($ns/$el $els ...) } => {
+    _sexpr _ki.namespaces.$ns.vars.$el (_els ($els ...))
+  }
+  rule { ($el $els ...) } => {
+    _sexpr $el (_els ($els ...))
+  }
+}
+
+
 macro _els {
   rule { () } => {
   }
@@ -120,11 +145,6 @@ macro _def {
       _ki_ns_ctx[$varname] = _sexpr $sexpr;
       _ki.namespaces[_ki_ns_name].vars.$n = _ki_ns_ctx[$varname]
     };
-  }
-}
-
-macro _fapply {
-  rule { ($els ...) } => {
   }
 }
 
@@ -241,8 +261,8 @@ macro _sexpr {
     $body ...
   }
 
-  rule { ( $els ... ) } => {
-    call(_els($els ...))
+  rule { ($els ...) } => {
+    _call ($els ...)
   }
 
   rule { $x } => { _x $x }
@@ -278,7 +298,6 @@ macro ki {
         namespaces: {},
         modules: {
           core: {
-            call: function() { return arguments[0].apply(this, Array.prototype.slice.call(arguments,1)); },
             prn: console.log
           },
           mori: require('ki/node_modules/mori')
