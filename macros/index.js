@@ -1,5 +1,5 @@
 /**
- * ki: mori + lisp + sweet.js
+ * ki: a sane lisp for your JavaScript
  * MIT license http://www.opensource.org/licenses/mit-license.php/
  * Copyright (C) 2014 Luca Antiga http://lantiga.github.io
  */
@@ -16,67 +16,54 @@
 //Template: 10,
 //Delimiter: 11
 
-macro _fun {
-  case { _ ((js $x ...)) } => {
-    return #{$x ...}
+macro _els {
+  rule { () } => {
   }
-  case { _ ($ns/$f) } => {
-    return #{ _ki.namespaces.$ns.vars.$f };
-  }
-  case { _ ($f) } => {
-    return #{$f}; 
-  }
-  case { _ ($f(.)...) } => {
-    var farr = #{$f(.)...};
-    if (farr.length == 1) {
-      letstx $fn = [farr[0]];
-      //return #{_sexpr $fn};
-      return #{$fn};
-    }
-    return #{$f(.)...};
-  }
-}
 
-macro _args {
-  rule { ($arg) } => {
-    _sexpr $arg
+  rule { ($el1.$el2.$el3.$el4.$el5.$el6) } => {
+    _sexpr $el1.$el2.$el3.$el4.$el5.$el6
   }
-  rule { ($ns/$arg) } => {
-    _sexpr _ki.namespaces.$ns.vars.$arg
+  rule { ($el1.$el2.$el3.$el4.$el5) } => {
+    _sexpr $el1.$el2.$el3.$el4.$el5
   }
-  rule { ($arg1.$arg2) } => {
-    _sexpr $arg1.$arg2
+  rule { ($el1.$el2.$el3.$el4) } => {
+    _sexpr $el1.$el2.$el3.$el4
   }
-  rule { ($arg1.$arg2.$arg3) } => {
-    _sexpr $arg1.$arg2.$arg3
+  rule { ($el1.$el2.$el3) } => {
+    _sexpr $el1.$el2.$el3
   }
-  rule { ($arg1.$arg2.$arg3.$arg4) } => {
-    _sexpr $arg1.$arg2.$arg3.$arg4
+  rule { ($el1.$el2) } => {
+    _sexpr $el1.$el2
   }
-  rule { ($arg1.$arg2.$arg3.$arg4.$arg5) } => {
-    _sexpr $arg1.$arg2.$arg3.$arg4.$arg5
+  rule { ($ns/$el) } => {
+    _sexpr _ki.namespaces.$ns.vars.$el
   }
-  rule { ($arg1.$arg2.$arg3.$arg4.$arg5.$arg6) } => {
-    _sexpr $arg1.$arg2.$arg3.$arg4.$arg5.$arg6
+  rule { ($el) } => {
+    _sexpr $el
   }
-  rule { ($arg $args ...) } => {
-    _sexpr $arg, _args ($args ...)
+
+  rule { ($el1.$el2.$el3.$el4.$el5.$el6 $els ...) } => {
+    _sexpr $el1.$el2.$el3.$el4.$el5.$el6, _els ($els ...)
   }
-  rule { ($arg1.$arg2 $args ...) } => {
-    _sexpr $arg1.$arg2, _args ($args ...)
+  rule { ($el1.$el2.$el3.$el4.$el5 $els ...) } => {
+    _sexpr $el1.$el2.$el3.$el4.$el5, _els ($els ...)
   }
-  rule { ($arg1.$arg2.$arg3 $args ...) } => {
-    _sexpr $arg1.$arg2.$arg3, _args ($args ...)
+  rule { ($el1.$el2.$el3.$el4 $els ...) } => {
+    _sexpr $el1.$el2.$el3.$el4, _els ($els ...)
   }
-  rule { ($arg1.$arg2.$arg3.$arg4 $args ...) } => {
-    _sexpr $arg1.$arg2.$arg3.$arg4, _args ($args ...)
+  rule { ($el1.$el2.$el3 $els ...) } => {
+    _sexpr $el1.$el2.$el3, _els ($els ...)
   }
-  rule { ($arg1.$arg2.$arg3.$arg4.$arg5 $args ...) } => {
-    _sexpr $arg1.$arg2.$arg3.$arg4.$arg5, _args ($args ...)
+  rule { ($el1.$el2 $els ...) } => {
+    _sexpr $el1.$el2, _els ($els ...)
   }
-  rule { ($arg1.$arg2.$arg3.$arg4.$arg5.$arg6 $args ...) } => {
-    _sexpr $arg1.$arg2.$arg3.$arg4.$arg5.$arg6, _args ($args ...)
+  rule { ($ns/$el $els ...) } => {
+    _sexpr _ki.namespaces.$ns.vars.$el, _els ($els ...)
   }
+  rule { ($el $els ...) } => {
+    _sexpr $el, _els ($els ...)
+  }
+
 }
 
 macro _x {
@@ -129,14 +116,15 @@ macro _def {
     var varname = unwrapSyntax(#{$n});
     letstx $varname = [makeValue(varname,#{$n})];
     return #{
-      //(function($n) {
       var $n = _sexpr $sexpr;
       _ki_ns_ctx[$varname] = _sexpr $sexpr;
       _ki.namespaces[_ki_ns_name].vars.$n = _ki_ns_ctx[$varname]
-      //_ki_ns_ctx.$n = _sexpr $sexpr;
-      //_ki.namespaces[_ki_ns_name].vars.$n = _ki_ns_ctx.$n
-      //})($n) 
     };
+  }
+}
+
+macro _fapply {
+  rule { ($els ...) } => {
   }
 }
 
@@ -153,8 +141,8 @@ macro _sexpr {
     _use $modules ...
   }
 
-  rule { (fn [$args ...] $sexprs ...) } => {
-    function ($args(,)...) {
+  rule { (fn [$els ...] $sexprs ...) } => {
+    function ($els(,)...) {
       _return_sexprs ($sexprs ...)
     }
   }
@@ -223,8 +211,6 @@ macro _sexpr {
     false
   }
 
-  // reimplement by using scope more effectively and 
-  // avoid the nested function defs
   rule { (letv [$k $v $rest ...] $sexprs ...) } => {
     (function ($k) {
       return (_sexpr (letv [$rest ...] $sexprs ...));
@@ -247,42 +233,18 @@ macro _sexpr {
   }
 
   // TODO: docstring
-  rule { (defn $n [$args ...] $sexprs ...) } => {
-    _sexpr (def $n (fn [$args ...] $sexprs ...))
+  rule { (defn $n [$els ...] $sexprs ...) } => {
+    _sexpr (def $n (fn [$els ...] $sexprs ...))
   }
 
   rule { (js $body ...) } => {
     $body ...
   }
 
-  rule { ($f(.)...) } => {
-    _fun($f(.)...)()
+  rule { ( $els ... ) } => {
+    call(_els($els ...))
   }
 
-  // fix parsing issue in sweet.js in order
-  // to express the following clauses in one
-  // same for _args
-  rule { ($f1.$f2.$f3.$f4.$f5.$f6 $args ...) } => {
-    _fun($f1.$f2.$f3.$f4.$f5.$f6)( _args($args ...))
-  }
-  rule { ($f1.$f2.$f3.$f4.$f5 $args ...) } => {
-    _fun($f1.$f2.$f3.$f4.$f5)( _args($args ...))
-  }
-  rule { ($f1.$f2.$f3.$f4 $args ...) } => {
-    _fun($f1.$f2.$f3.$f4)( _args($args ...))
-  }
-  rule { ($f1.$f2.$f3 $args ...) } => {
-    _fun($f1.$f2.$f3)( _args($args ...))
-  }
-  rule { ($f1.$f2 $args ...) } => {
-    _fun($f1.$f2)( _args($args ...))
-  }
-  rule { ($ns/$f $args ...) } => {
-    _fun($ns/$f)( _args($args ...))
-  }
-  rule { ($f $args ...) } => {
-    _fun($f)( _args($args ...))
-  }
   rule { $x } => { _x $x }
 }
 
@@ -316,6 +278,7 @@ macro ki {
         namespaces: {},
         modules: {
           core: {
+            call: function() { return arguments[0].apply(this, Array.prototype.slice.call(arguments,1)); },
             prn: console.log
           },
           mori: require('ki/node_modules/mori')
