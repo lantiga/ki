@@ -129,7 +129,7 @@ macro _ns {
 macro _use {
   case { _ $modules ...} => {
     return #{
-      for (var m in $modules ...) {
+      for (var m in [$modules(,)...]) {
         _ki.intern.bind(_ki_ns_ctx)(_ki.modules[m]);
       }
     }
