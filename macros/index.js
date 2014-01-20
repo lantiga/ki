@@ -119,7 +119,6 @@ macro _def {
     letstx $varname = [makeValue(varname,#{$n})];
     return #{
       (function() {
-        //var $n = _sexpr $sexpr;
         _ki_ns_ctx[$varname] = _sexpr $sexpr;
         _ki.namespaces[_ki_ns_name].vars.$n = _ki_ns_ctx[$varname]
       })()

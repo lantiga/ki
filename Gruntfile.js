@@ -5,7 +5,7 @@ module.exports = function(grunt) {
         options: {
           reporter: 'spec'
         },
-        src: 'test/**/*.js'
+        src: 'test/**/*.out.js'
       }
     }
   });
@@ -17,9 +17,9 @@ module.exports = function(grunt) {
 
   grunt.registerTask('build-test', function() {
     var path = require('path');
-    var files = ['./test/core.ki'];
+    var files = ['./test/core.js'];
     files.forEach(function(f) {
-      grunt.file.write(f.replace('.ki', '.js'), compileFile(f, true));
+      grunt.file.write(f.replace('.js', '.out.js'), compileFile(f, true));
     });
   });
 
