@@ -4,18 +4,6 @@
  * Copyright (C) 2014 Luca Antiga http://lantiga.github.io
  */
 
-//BooleanLiteral: 1,
-//EOF: 2,
-//Identifier: 3,
-//Keyword: 4,
-//NullLiteral: 5,
-//NumericLiteral: 6,
-//Punctuator: 7,
-//StringLiteral: 8,
-//RegularExpression: 9,
-//Template: 10,
-//Delimiter: 11
-
 macro _call {
   rule { ($el1.$el2.$el3.$el4.$el5.$el6 $els ...) } => {
     _sexpr $el1.$el2.$el3.$el4.$el5.$el6 (_els ($els ...))
@@ -39,7 +27,6 @@ macro _call {
     _sexpr $el (_els ($els ...))
   }
 }
-
 
 macro _els {
   rule { () } => {
@@ -126,24 +113,15 @@ macro _ns {
   }
 }
 
-macro _use {
-  case { _ $modules ...} => {
-    return #{
-      for (var m in [$modules(,)...]) {
-        _ki.intern.bind(_ki_ns_ctx)(_ki.modules[m]);
-      }
-    }
-  }
-}
-
 macro _def {
   case { _ $n $sexpr } => {
     var varname = unwrapSyntax(#{$n});
     letstx $varname = [makeValue(varname,#{$n})];
     return #{
-      var $n = _sexpr $sexpr;
-      _ki_ns_ctx[$varname] = _sexpr $sexpr;
-      _ki.namespaces[_ki_ns_name].vars.$n = _ki_ns_ctx[$varname]
+      (function() {
+        _ki_ns_ctx[$varname] = _sexpr $sexpr;
+        _ki.namespaces[_ki_ns_name].vars.$n = _ki_ns_ctx[$varname]
+      })()
     };
   }
 }
@@ -182,8 +160,13 @@ macro _sexpr {
     _ns $ns $sexprs ...
   }
 
-  rule { (use $modules ...) } => {
-    _use $modules ...
+  rule { (use ) } => {
+  }
+  rule { (use $module $modules ...) } => {
+    (function () {
+      _ki.intern.bind(_ki_ns_ctx)(_ki.modules.$module);
+      _sexpr (use $modules ...);
+    })()
   }
 
   rule { (fn [$els ...] $sexprs ...) } => {
@@ -390,7 +373,11 @@ macro ki {
   }
 
   case { $ki (ns $ns $sexprs ...) } => {
-    return #{ _sexpr (ns $ns $sexprs ...) }
+    return #{ 
+      (function() {
+        return _sexpr (ns $ns $sexprs ...) 
+      })()
+    }
   }
 
   case { $ki ($x ...) } => {

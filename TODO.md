@@ -13,8 +13,6 @@
 * **DONE** and or 
 * **DONE** not
 * **DONE** eq neq 
-* lt gt le ge
-* add sub mul div mod
 * **DONE** letv 
 * **DONE** do
 * **DONE** def defn 
@@ -32,8 +30,11 @@
 * **DONE** support js object creation with js new, or just decide to leave it as 
   (js new Date) I like this option better (we should document it and that's it)
 * **DONE** data literals
+* lt gt le ge
+* add sub mul div mod
 * fn arity check and multiple arities
-* chaining (as in sibilantjs)
+* keywords
+* chaining (see mori's chaining, take a look at sibilantjs)
 
 * **IN PROGRESS** testing
 
