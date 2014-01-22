@@ -126,6 +126,7 @@ macro _def {
   }
 }
 
+// FIXME: rework loop/recur so that it doesn't blow up the stack
 macro _loop_letv {
   rule { ([$k $v $rest ...] $i $vals $sexprs ...) } => {
     (function ($k) {
@@ -135,6 +136,7 @@ macro _loop_letv {
   rule { ([] $i $vals $sexprs ...) } => {
     (function () {
       _return_sexprs ($sexprs ...)
+      //($sexprs(,) ...)
     })()
   }
 }
@@ -145,7 +147,7 @@ macro _loop {
       do {
         res = _loop_letv ([$kv ...] 0 (res._ki_vals) $sexprs ...);
       }
-      while (res._ki_recur);
+      while ((res || 0)._ki_recur);
       return res;
     })()
   }
@@ -285,6 +287,10 @@ macro _sexpr {
   }
 
   rule { (recur $els ...) } => {
+    //(function () {
+    //  var vals = _els ($els ...);
+    //  return {_ki_recur: true, _ki_vals: vals};
+    //})()
     {_ki_recur: true, _ki_vals: [_els ($els ...)]}
   }
 
@@ -309,6 +315,12 @@ macro _sexpr {
     console.log(_els ($els ...))
   }
 
+  rule { (str $els ...) } => {
+    (function() {
+      return String.prototype.concat(_els ($els ...))
+    })()
+  }
+
   rule { (js $body ...) } => {
     $body ...
   }
@@ -330,7 +342,7 @@ macro _sexpr {
 
 macro _return_sexprs {
   rule { ($sexpr) } => {
-    return _sexpr $sexpr;
+    return _sexpr $sexpr
   }
   rule { ($sexpr $sexprs ...) } => {
     _sexpr $sexpr; _return_sexprs ($sexprs ...)

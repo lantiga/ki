@@ -7,7 +7,6 @@
 * **DONE** allow property access without (js ), e.g. (bar.dostuff 1 this.props) instead of 
   ((js bar.dostuff) 1 (js this.props)) 
 * **DONE** implement ki require to make it practical to use node modules
-
 * **DONE** if when 
 * **DONE** cond 
 * **DONE** and or 
@@ -16,8 +15,6 @@
 * **DONE** letv 
 * **DONE** do
 * **DONE** def defn 
-* threading macros (tfirst, tlast)
-* **DONE** loop, recur, while
 * **DONE** nil 
 * **DONE** define truthiness (in line with ClojureScript and Mori)
 * **DONE** ns: every ki () form should introduce a namespace, either anonymous 
@@ -30,11 +27,13 @@
 * **DONE** support js object creation with js new, or just decide to leave it as 
   (js new Date) I like this option better (we should document it and that's it)
 * **DONE** data literals
+* **DONE** loop, recur, while **TODO: FIX loop/recur**
 * lt gt le ge
 * add sub mul div mod
 * fn arity check and multiple arities
 * keywords
-* chaining (see mori's chaining, take a look at sibilantjs)
+* threading macros (tfirst, tlast)
+* chaining (see mori's chaining, take a look at chaining in sibilant)
 
 * **IN PROGRESS** testing
 
@@ -45,7 +44,7 @@
 
 ## 0.3.0 Add the nice to have
 
-* add "application/ki" script type and in-browser expansion (browserify?)
+* continuation passing style async macro
 * destructuring
 * named parameters and defaults
 * regular expressions
@@ -54,6 +53,7 @@
 * additional functions/forms
   * condp case
   * for (comprehension)
+* "application/ki" script type and in-browser expansion (browserify?)
 
 ## 0.4.0 Make it a real lisp
 
