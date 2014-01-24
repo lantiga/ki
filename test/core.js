@@ -11,7 +11,7 @@ describe("require core", function() {
 
   it("should make mori available", function() {
     ki require core
-    var mori = require("mori");
+    var mori = _ki.modules.mori;
     expect(ki (vector 1 2 3)).to.eql(mori.vector(1,2,3))
   });
 
@@ -72,6 +72,8 @@ describe("lambdas", function() {
     expect(f(1)).to.eql(2);
   });
 
+  // TODO: test arity check
+
   it("should allow to define anonymous functions and use them in ki", function() {
     ki require core
     expect(
@@ -93,7 +95,7 @@ describe("interoperability", function() {
   it("should allow to pass a ki fn as a js callback", function() {
     ki require core
     expect(
-      [1,2,3,4].map(ki (fn [x] (is_even x)))).to.eql([false,true,false,true]);
+      [1,2,3,4].map(ki (fn [x _ _] (is_even x)))).to.eql([false,true,false,true]);
   });
 
 });
@@ -286,7 +288,48 @@ describe("recursion", function() {
 });
 
 describe("keywords", function() {
-  // TODO
+
+  it("should be usable in collections", function() {
+    ki require core
+    var mori = _ki.modules.mori;
+    expect(ki ([:a 1 :b {:c 2}])).to.eql(
+      mori.vector(mori.keyword('a'),1,
+        mori.keyword('b'),mori.hash_map(mori.keyword('c'),2)));
+  });
+
+  it("should evaluate to themselves", function() {
+    ki require core
+    var mori = _ki.modules.mori;
+    expect(ki (do (:a))).to.eql(mori.keyword('a'));
+  });
+
+  it("should evaluate as keys to get values from collections", function() {
+    ki require core
+    var mori = _ki.modules.mori;
+    expect(ki (:a {:a 1 :b 2})).to.eql(1);
+  });
+
+});
+
+describe("arity", function() {
+
+  it("should throw when a function is called with incorrect arity", function() {
+  });
+
+  it("should allow to define functions with multiple arities", function() {
+  });
+
+  it("should throw when a multiple arity function is called with incorrect arity", function() {
+  });
+
+  it("should allow to define functions with optional arguments", function() {
+    // TODO
+  });
+
+  it("should throw if functions with optional arguments are called with insufficient arguments", function() {
+    // TODO
+  });
+
 });
 
 describe("threading", function() {

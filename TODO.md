@@ -27,11 +27,12 @@
 * **DONE** support js object creation with js new, or just decide to leave it as 
   (js new Date) I like this option better (we should document it and that's it)
 * **DONE** data literals
-* **DONE** loop, recur, while **TODO: FIX loop/recur**
+* **DONE** loop, recur, while 
 * lt gt le ge
 * add sub mul div mod
-* fn arity check and multiple arities
-* keywords
+* **DONE** fn arity check **TODO** test
+* **DONE** multiple arities **TODO** test
+* **DONE** keywords
 * threading macros (tfirst, tlast)
 * chaining (see mori's chaining, take a look at chaining in sibilant)
 

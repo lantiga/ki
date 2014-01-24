@@ -20,6 +20,15 @@ macro _call {
   rule { ($el1.$el2 $els ...) } => {
     _sexpr $el1.$el2 (_els ($els ...))
   }
+  rule { (:$el) } => {
+    _x :$el
+  }
+  rule { (:$el $el1) } => {
+    _sexpr (get $el1 :$el)
+  }
+  rule { (:$el $el1 $el2) } => {
+    _sexpr (get $el1 :$el $el2)
+  }
   rule { ($ns/$el $els ...) } => {
     _sexpr _ki.namespaces.$ns.vars.$el (_els ($els ...))
   }
@@ -47,6 +56,9 @@ macro _els {
   rule { ($el1.$el2) } => {
     _sexpr $el1.$el2
   }
+  rule { (:$el) } => {
+    _sexpr :$el
+  }
   rule { ($ns/$el) } => {
     _sexpr _ki.namespaces.$ns.vars.$el
   }
@@ -69,6 +81,9 @@ macro _els {
   rule { ($el1.$el2 $els ...) } => {
     _sexpr $el1.$el2, _els ($els ...)
   }
+  rule { (:$el $els ...) } => {
+    _sexpr :$el, _els ($els ...)
+  }
   rule { ($ns/$el $els ...) } => {
     _sexpr _ki.namespaces.$ns.vars.$el, _els ($els ...)
   }
@@ -88,6 +103,11 @@ macro _x {
   case { _ nil } => {
     return #{null}
   }
+  case { _ :$x} => {
+    var kw = #{$x}[0].token.value;
+    letstx $kw = [makeValue(kw,#{$x})];
+    return #{keyword($kw)}
+  }
   case { _ $x} => {
     return #{$x}
   }
@@ -102,8 +122,8 @@ macro _ns {
         if (_ki.namespaces.$ns === undefined) {
           _ki.namespaces.$ns = { vars: {} };
         }
-        this['_ki_ns_name'] = $nsname;
-        this['_ki_ns_ctx'] = this;
+        this._ki_ns_name = $nsname;
+        this._ki_ns_ctx = this;
         _ki.intern.bind(this)(_ki.modules.core);
         _ki.intern.bind(this)(_ki.modules.mori);
         _ki.intern.bind(this)(_ki.namespaces[_ki_ns_name].vars);
@@ -123,6 +143,23 @@ macro _def {
         _ki.namespaces[_ki_ns_name].vars.$n = _ki_ns_ctx[$varname]
       })()
     };
+  }
+}
+
+macro _count {
+  case { $m ($els(,) ...) } => {
+    var n = #{$els ...}.length;
+    letstx $n = [makeValue(n,#{$m})];
+    return #{$n};
+  }
+}
+
+macro _fnmap {
+  rule { ([$els ...] $sexprs ...), $rest(,)... } => {
+    _count ($els(,)...): _sexpr (fn [$els ...] $sexprs ...), _fnmap $rest(,)...
+  }
+  rule { ([$els ...] $sexprs ...) } => {
+    _count ($els(,)...): _sexpr (fn [$els ...] $sexprs ...)
   }
 }
 
@@ -171,8 +208,24 @@ macro _sexpr {
 
   rule { (fn [$els ...] $sexprs ...) } => {
     function ($els(,)...) {
+      if (arguments.length != _count($els(,)...)) {
+        throw "Wrong number of args (" + arguments.length + ")."
+      }
       _return_sexprs ($sexprs ...)
     }
+  }
+
+  rule { (fn $sexprs ...) } => {
+    (function () {
+      var fnmap = {_fnmap $sexprs(,) ...};
+      return function () {
+        var f = fnmap[arguments.length];
+        if (f === undefined) {
+          throw "Wrong number of args (" + arguments.length + ")."
+        }
+        return f.apply(this,arguments);
+      }
+    })()
   }
 
   rule { (truthy $sexpr) } => {
@@ -300,6 +353,10 @@ macro _sexpr {
   rule { (defn $n [$els ...] $sexprs ...) } => {
     _sexpr (def $n (fn [$els ...] $sexprs ...))
   }
+ 
+  rule { (defn $n ([$els ...] $sexprs ...) $rest ...) } => {
+    _sexpr (def $n (fn ([$els ...] $sexprs ...) $rest ...))
+  }
   
   // TODO
   //rule { (threadf $els ...) } => {
@@ -334,6 +391,10 @@ macro _sexpr {
   rule { {$els ...} } => {
     _sexpr (hash_map $els ...)
   }
+
+  rule { ns/:$x } => { _x ns/:$x }
+
+  rule { :$x } => { _x :$x }
 
   rule { $x } => { _x $x }
 }
@@ -398,8 +459,8 @@ macro ki {
         if (_ki.namespaces._anon === undefined) {
           _ki.namespaces._anon = { vars: {} };
         }
-        this['_ki_ns_name'] = '_anon';
-        this['_ki_ns_ctx'] = this;
+        this._ki_ns_name = '_anon';
+        this._ki_ns_ctx = this;
         _ki.intern.bind(this)(_ki.modules.core);
         _ki.intern.bind(this)(_ki.modules.mori);
         _ki.intern.bind(this)(_ki.namespaces[_ki_ns_name].vars);
