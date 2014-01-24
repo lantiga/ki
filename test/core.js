@@ -292,7 +292,7 @@ describe("keywords", function() {
   it("should be usable in collections", function() {
     ki require core
     var mori = _ki.modules.mori;
-    expect(ki ([:a 1 :b {:c 2}])).to.eql(
+    expect(ki (do [:a 1 :b {:c 2}])).to.eql(
       mori.vector(mori.keyword('a'),1,
         mori.keyword('b'),mori.hash_map(mori.keyword('c'),2)));
   });
