@@ -231,11 +231,11 @@ describe("flow control", function() {
            (eq 1 2) "foo"
            nil "bar"
            "" "baz")).to.eql("baz");
-    //expect(
-    //  ki (cond
-    //       (eq 1 2) "foo"
-    //       nil "bar"
-    //       :else "baz")).to.eql("baz");
+    expect(
+      ki (cond
+           (eq 1 2) "foo"
+           nil "bar"
+           :else "baz")).to.eql("baz");
   });
 
   it("should have cond short circuit", function() {
