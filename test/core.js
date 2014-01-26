@@ -72,8 +72,6 @@ describe("lambdas", function() {
     expect(f(1)).to.eql(2);
   });
 
-  // TODO: test arity check
-
   it("should allow to define anonymous functions and use them in ki", function() {
     ki require core
     expect(
@@ -95,7 +93,7 @@ describe("interoperability", function() {
   it("should allow to pass a ki fn as a js callback", function() {
     ki require core
     expect(
-      [1,2,3,4].map(ki (fn [x _ _] (is_even x)))).to.eql([false,true,false,true]);
+      [1,2,3,4].map(ki (fn [x] (is_even x)))).to.eql([false,true,false,true]);
   });
 
 });
@@ -113,19 +111,21 @@ describe("local bindings and lexical scope", function() {
     expect(
       ki (clj_to_js
            (letv [a 0]
-            (letv [a 1 
-                   b 2]
+            (letv [a (inc a) 
+                   b (inc a)]
                (vector a b))))
       ).to.eql([1,2]);
+    var c = {d: 1};
+    var mori = _ki.modules.mori;
     expect(
-      ki (clj_to_js
-           (letv [a 1
-                  b 2]
-            (letv [a 3 
-                   b 4] 
+      ki (letv [a c.d
+                b (inc a)
+                e :e]
+            (letv [a (inc a) 
+                   b (inc b)] 
               a)
-            (vector a b)))
-      ).to.eql([1,2]);
+            (vector a b e))
+      ).to.eql(mori.vector(1,2,mori.keyword('e')));
   });
 
 });
@@ -226,10 +226,16 @@ describe("flow control", function() {
 
   it("should have cond be consistent with definition of truthiness", function() {
     ki require core
-    expect(ki (cond
-                (eq 1 2) "foo"
-                nil "bar"
-                "" "baz")).to.eql("baz");
+    expect(
+      ki (cond
+           (eq 1 2) "foo"
+           nil "bar"
+           "" "baz")).to.eql("baz");
+    //expect(
+    //  ki (cond
+    //       (eq 1 2) "foo"
+    //       nil "bar"
+    //       :else "baz")).to.eql("baz");
   });
 
   it("should have cond short circuit", function() {
@@ -252,6 +258,11 @@ describe("data literals", function() {
   it("should allow to create hash maps", function() {
     ki require core
     expect(ki (eq {"a" 2 "b" 4} (hash_map "a" 2 "b" 4))).to.eql(true);
+  });
+
+  it("should allow to create hash maps and evaluate forms", function() {
+    ki require core
+    expect(ki (eq {"a" (inc 1) (str "b") 4} (hash_map "a" 2 "b" 4))).to.eql(true);
   });
 
   it("should allow to create deeply nested data structures", function() {
@@ -278,7 +289,7 @@ describe("recursion", function() {
   it("should allow to recur using loop/recur without blowing the stack", function() {
     ki require core
     ki (defn fib [n]
-        (loop [a 0 b 1 iter 0]
+        (loop [a 0 b (inc a) iter 0]
          (if (js iter == n) a
           (recur b (js a + b) (inc iter)))));
     expect(ki (fib 20)).to.eql(6765);
@@ -297,47 +308,166 @@ describe("keywords", function() {
         mori.keyword('b'),mori.hash_map(mori.keyword('c'),2)));
   });
 
-  it("should evaluate to themselves", function() {
-    ki require core
-    var mori = _ki.modules.mori;
-    expect(ki (do (:a))).to.eql(mori.keyword('a'));
-  });
+  //it("should evaluate to themselves", function() {
+  //  ki require core
+  //  var mori = _ki.modules.mori;
+  //  expect(ki (do (:a))).to.eql(mori.keyword('a'));
+  //});
 
-  it("should evaluate as keys to get values from collections", function() {
-    ki require core
-    var mori = _ki.modules.mori;
-    expect(ki (:a {:a 1 :b 2})).to.eql(1);
-  });
+  //it("should evaluate as keys to get values from collections", function() {
+  //  ki require core
+  //  var mori = _ki.modules.mori;
+  //  expect(ki (:a {:a 1 :b 2})).to.eql(1);
+  //});
 
 });
 
 describe("arity", function() {
 
-  it("should throw when a function is called with incorrect arity", function() {
+  it("should allow calling functions without arity constraints, as in js", function() {
+    ki require core
+    ki (defn foo [a] (str "Hello " a))
+    expect(
+      ki (foo 1 2)
+      ).to.eql("Hello 1");
+    expect(
+      ki (foo)
+      ).to.eql("Hello undefined");
   });
 
   it("should allow to define functions with multiple arities", function() {
+    ki require core
+    ki (defn foo 
+         ([a] (str "Hello " a))
+         ([a b] (str "There " a " " b)))
+    expect(
+      ki (foo 1)
+      ).to.eql("Hello 1");
+    expect(
+      ki (foo 1 2)
+      ).to.eql("There 1 2");
   });
 
-  it("should throw when a multiple arity function is called with incorrect arity", function() {
+  it("should fallback to max arity in case supplied arguments do not match the specified arities", function() {
+    ki require core
+    ki (defn foo 
+         ([a] (str "Hello " a))
+         ([a b] (str "There " a " " b)))
+    expect(
+      ki (foo)
+      ).to.eql("There undefined undefined");
+    expect(
+      ki (foo 1 2 3)
+      ).to.eql("There 1 2");
   });
 
-  it("should allow to define functions with optional arguments", function() {
-    // TODO
+  //it("should allow to define functions with optional arguments", function() {
+  //  throw "Not implemented"
+  //});
+
+});
+
+describe("chaining and doto", function() {
+
+  it("should allow to use JavaScript chained APIs", function() {
+    ki require core
+    var A = function() {
+      var self = this;
+      this.v = "init ";
+      this.foo = function(x) {
+        self.v += "foo called with " + x + " ";
+        return self;
+      };
+      this.bar = function(x) {
+        self.v += "bar called with " + x + " ";
+        return self;
+      };
+    }
+    var a = new A();
+    var mori = _ki.modules.mori;
+    expect(
+      ki (chain a (foo 1) (bar 2) v)
+      ).to.eql('init foo called with 1 bar called with 2 ');
   });
 
-  it("should throw if functions with optional arguments are called with insufficient arguments", function() {
-    // TODO
+  it("should allow to repeatedly call methods on a JavaScript object", function() {
+    ki require core
+    var A = function() {
+      var self = this;
+      this.foo = null;
+      this.bar = null;
+      this.setFoo = function(x) {
+        self.foo = x;
+      };
+      this.setBar = function(x) {
+        self.bar = x;
+      };
+      this.getFooBar = function() {
+        return self.foo + " " + self.bar;
+      }
+    }
+    var a = new A();
+    var mori = _ki.modules.mori;
+    expect(
+      ki (doto a (setFoo 'a') (setBar 'b')).getFooBar()
+      ).to.eql('a b');
   });
 
 });
 
 describe("threading", function() {
-  // TODO
+
+  it("should allow to thread first a value through a sequence of computations", function() {
+    ki require core
+    var a = 1;
+    expect(
+      ki (threadf a inc inc dec)
+      ).to.eql(2);
+    expect(
+      ki (threadf a (sum 2) (sum 3))
+      ).to.eql(6);
+    expect(
+      ki (threadf [] (conj 1) first)
+      ).to.eql(1);
+  });
+
+  it("should allow to thread last a value through a sequence of computations", function() {
+    ki require core
+    var a = 1;
+    expect(
+      ki (threadl a (conj []) (map (fn [x] (inc x))) first)
+      ).to.eql(2);
+  });
+
 });
 
 describe("math operations", function() {
-  // TODO
+
+  it("should allow to add, subtract, multiply, divide a sequence of numbers and compute the modulo of two numbers", function() {
+    ki require core
+    expect(ki (add 1 2 3)).to.eql(6);
+    expect(ki (sub 3 2 1)).to.eql(0);
+    expect(ki (mul 1 2 3)).to.eql(6);
+    expect(ki (div 3 2 1)).to.eql(1.5);
+    expect(ki (mod 3 2)).to.eql(1);
+  });
+
+  it("should allow to compare sequences of numbers", function() {
+    ki require core
+    expect(ki (lt 1 2 3)).to.eql(true);
+    expect(ki (lt 3 2 1)).to.eql(false);
+    expect(ki (lt 1 2 2)).to.eql(false);
+    expect(ki (gt 1 2 3)).to.eql(false);
+    expect(ki (gt 3 2 1)).to.eql(true);
+    expect(ki (gt 3 2 2)).to.eql(false);
+    expect(ki (leq 1 2 3)).to.eql(true);
+    expect(ki (leq 3 2 1)).to.eql(false);
+    expect(ki (leq 1 2 2)).to.eql(true);
+    expect(ki (geq 1 2 3)).to.eql(false);
+    expect(ki (geq 3 2 1)).to.eql(true);
+    expect(ki (geq 3 2 2)).to.eql(true);
+  });
+
 });
 
 describe("continuations", function() {

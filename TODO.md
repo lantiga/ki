@@ -28,20 +28,17 @@
   (js new Date) I like this option better (we should document it and that's it)
 * **DONE** data literals
 * **DONE** loop, recur, while 
-* lt gt le ge
-* add sub mul div mod
-* **DONE** fn arity check **TODO** test
-* **DONE** multiple arities **TODO** test
-* **DONE** keywords
-* threading macros (tfirst, tlast)
-* chaining (see mori's chaining, take a look at chaining in sibilant)
+* **DONE** keywords **TODO** keywords do not evaluate to themselves and do not extract values from collections
+* **DONE** multiple arities **TODO** optional arguments (deferred to destructuring)
+* **DONE** threading macros 
+* **DONE** chaining, doto
+* **DONE** add sub mul div mod
+* **DONE** lt gt leq geq
 
-* **IN PROGRESS** testing
+* **DONE** testing
 
-* blog
-* create something like http://kanaka.github.io/clojurescript/web/synonym.html
-* look at https://github.com/jbr/sibilant http://sibilantjs.info/
-  and http://jeditoolkit.com/try-wisp/
+* example with node
+* example with React
 
 ## 0.3.0 Add the nice to have
 
@@ -55,6 +52,7 @@
   * condp case
   * for (comprehension)
 * "application/ki" script type and in-browser expansion (browserify?)
+* create something like http://kanaka.github.io/clojurescript/web/synonym.html
 
 ## 0.4.0 Make it a real lisp
 

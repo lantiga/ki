@@ -4,93 +4,17 @@
  * Copyright (C) 2014 Luca Antiga http://lantiga.github.io
  */
 
-macro _call {
-  rule { ($el1.$el2.$el3.$el4.$el5.$el6 $els ...) } => {
-    _sexpr $el1.$el2.$el3.$el4.$el5.$el6 (_els ($els ...))
-  }
-  rule { ($el1.$el2.$el3.$el4.$el5 $els ...) } => {
-    _sexpr $el1.$el2.$el3.$el4.$el5 (_els ($els ...))
-  }
-  rule { ($el1.$el2.$el3.$el4 $els ...) } => {
-    _sexpr $el1.$el2.$el3.$el4 (_els ($els ...))
-  }
-  rule { ($el1.$el2.$el3 $els ...) } => {
-    _sexpr $el1.$el2.$el3 (_els ($els ...))
-  }
-  rule { ($el1.$el2 $els ...) } => {
-    _sexpr $el1.$el2 (_els ($els ...))
-  }
-  rule { (:$el) } => {
-    _x :$el
-  }
-  rule { (:$el $el1) } => {
-    _sexpr (get $el1 :$el)
-  }
-  rule { (:$el $el1 $el2) } => {
-    _sexpr (get $el1 :$el $el2)
-  }
-  rule { ($ns/$el $els ...) } => {
-    _sexpr _ki.namespaces.$ns.vars.$el (_els ($els ...))
-  }
-  rule { ($el $els ...) } => {
-    _sexpr $el (_els ($els ...))
-  }
-}
-
-macro _els {
+macro _args {
   rule { () } => {
   }
 
-  rule { ($el1.$el2.$el3.$el4.$el5.$el6) } => {
-    _sexpr $el1.$el2.$el3.$el4.$el5.$el6
-  }
-  rule { ($el1.$el2.$el3.$el4.$el5) } => {
-    _sexpr $el1.$el2.$el3.$el4.$el5
-  }
-  rule { ($el1.$el2.$el3.$el4) } => {
-    _sexpr $el1.$el2.$el3.$el4
-  }
-  rule { ($el1.$el2.$el3) } => {
-    _sexpr $el1.$el2.$el3
-  }
-  rule { ($el1.$el2) } => {
-    _sexpr $el1.$el2
-  }
-  rule { (:$el) } => {
-    _sexpr :$el
-  }
-  rule { ($ns/$el) } => {
-    _sexpr _ki.namespaces.$ns.vars.$el
-  }
-  rule { ($el) } => {
-    _sexpr $el
+  rule { ($arg) } => {
+    _sexpr $arg
   }
 
-  rule { ($el1.$el2.$el3.$el4.$el5.$el6 $els ...) } => {
-    _sexpr $el1.$el2.$el3.$el4.$el5.$el6, _els ($els ...)
+  rule { ($arg $args ...) } => {
+    _sexpr $arg, _args ($args ...)
   }
-  rule { ($el1.$el2.$el3.$el4.$el5 $els ...) } => {
-    _sexpr $el1.$el2.$el3.$el4.$el5, _els ($els ...)
-  }
-  rule { ($el1.$el2.$el3.$el4 $els ...) } => {
-    _sexpr $el1.$el2.$el3.$el4, _els ($els ...)
-  }
-  rule { ($el1.$el2.$el3 $els ...) } => {
-    _sexpr $el1.$el2.$el3, _els ($els ...)
-  }
-  rule { ($el1.$el2 $els ...) } => {
-    _sexpr $el1.$el2, _els ($els ...)
-  }
-  rule { (:$el $els ...) } => {
-    _sexpr :$el, _els ($els ...)
-  }
-  rule { ($ns/$el $els ...) } => {
-    _sexpr _ki.namespaces.$ns.vars.$el, _els ($els ...)
-  }
-  rule { ($el $els ...) } => {
-    _sexpr $el, _els ($els ...)
-  }
-
 }
 
 macro _x {
@@ -102,11 +26,6 @@ macro _x {
   }
   case { _ nil } => {
     return #{null}
-  }
-  case { _ :$x} => {
-    var kw = #{$x}[0].token.value;
-    letstx $kw = [makeValue(kw,#{$x})];
-    return #{keyword($kw)}
   }
   case { _ $x} => {
     return #{$x}
@@ -147,46 +66,90 @@ macro _def {
 }
 
 macro _count {
-  case { $m ($els(,) ...) } => {
-    var n = #{$els ...}.length;
+  case { $m ($x(,) ...) } => {
+    var n = #{$x ...}.length;
     letstx $n = [makeValue(n,#{$m})];
     return #{$n};
   }
 }
 
 macro _fnmap {
-  rule { ([$els ...] $sexprs ...), $rest(,)... } => {
-    _count ($els(,)...): _sexpr (fn [$els ...] $sexprs ...), _fnmap $rest(,)...
+  rule { ([$args ...] $sexprs ...), $rest(,)... } => {
+    _count ($args(,)...): _sexpr (fn [$args ...] $sexprs ...), _fnmap $rest(,)...
   }
-  rule { ([$els ...] $sexprs ...) } => {
-    _count ($els(,)...): _sexpr (fn [$els ...] $sexprs ...)
+  rule { ([$args ...] $sexprs ...) } => {
+    _count ($args(,)...): _sexpr (fn [$args ...] $sexprs ...)
+  }
+}
+
+macro _letv {
+  rule { ([$k $v $rest ...] $sexprs ...) } => {
+    return (function($k) {
+      _letv ([$rest ...] $sexprs ...)
+    })(_sexpr $v);
+  }
+  rule { ([] $sexprs ...) } => {
+    _return_sexprs ($sexprs ...)
   }
 }
 
 macro _loop_letv {
   rule { ([$k $v $rest ...] $i $vals $sexprs ...) } => {
-    (function ($k) {
-      return _loop_letv ([$rest ...] ($i+1) $vals $sexprs ...);
-    })($vals === undefined ? $v : $vals[$i])
+    return (function($k) {
+      _loop_letv ([$rest ...] ($i+1) $vals $sexprs ...)
+    })($vals === undefined ? _sexpr $v : $vals[$i]);
   }
   rule { ([] $i $vals $sexprs ...) } => {
-    (function () {
-      _return_sexprs ($sexprs ...)
-    })()
+    _return_sexprs ($sexprs ...)
   }
 }
-macro _loop {
-  rule { [$kv ...] $sexprs ... } => {
-    (function() {
-      var res = {};
-      do {
-        res = _loop_letv ([$kv ...] 0 (res._ki_vals) $sexprs ...);
-      }
-      while ((res || 0)._ki_recur);
-      return res;
-    })()
+
+macro _chain {
+  rule { (($method $args ...)) } => {
+    .$method(_args ($args ...))
+  }
+  rule { ($property) } => {
+    .$property
+  }
+  rule { (($method $args ...) $rest ...) } => {
+    .$method(_args ($args ...)) _chain ($rest ...)
+  }
+  rule { ($property $rest ...) } => {
+    .$property _chain ($rest ...)
   }
 }
+
+macro _doto {
+  rule { ($obj ($method $args ...)) } => {
+    $obj.$method(_args ($args ...));
+  }
+  rule { ($obj ($method $args ...) $rest ...) } => {
+    $obj.$method(_args ($args ...));
+    _doto ($obj $rest ...)
+  }
+}
+
+macro _interpose_op {
+  rule { $op ($arg) } => {
+    _sexpr $arg
+  }
+  rule { $op ($arg $args ...) } => {
+    _sexpr $arg $op _interpose_op $op ($args ...)
+  }
+}
+
+macro _compare {
+  rule { $op ($arg) } => {
+    true
+  }
+  rule { $op ($arg1 $arg2) } => {
+    $arg1 $op $arg2
+  }
+  rule { $op ($arg1 $arg2 $args ...) } => {
+    _sexpr $arg1 $op $arg2 && _compare $op ($arg2 $args ...)
+  }
+}
+
 
 macro _sexpr {
 
@@ -206,11 +169,16 @@ macro _sexpr {
     })()
   }
 
-  rule { (fn [$els ...] $sexprs ...) } => {
-    function ($els(,)...) {
-      if (arguments.length != _count($els(,)...)) {
-        throw "Wrong number of args (" + arguments.length + ")."
-      }
+  rule { (ns_get $ns $x) } => {
+    _sexpr _ki.namespaces.$ns.vars.$x
+  }
+
+  rule { (js $body ...) } => {
+    $body ...
+  }
+
+  rule { (fn [$args ...] $sexprs ...) } => {
+    function ($args(,)...) {
       _return_sexprs ($sexprs ...)
     }
   }
@@ -218,11 +186,13 @@ macro _sexpr {
   rule { (fn $sexprs ...) } => {
     (function () {
       var fnmap = {_fnmap $sexprs(,) ...};
+      var max_arity = 0;
+      for (var a in fnmap) {
+        max_arity = a > max_arity ? a : max_arity;
+      }
+      fnmap[null] = fnmap[max_arity];
       return function () {
-        var f = fnmap[arguments.length];
-        if (f === undefined) {
-          throw "Wrong number of args (" + arguments.length + ")."
-        }
+        var f = fnmap[arguments.length] || fnmap[null];
         return f.apply(this,arguments);
       }
     })()
@@ -242,14 +212,8 @@ macro _sexpr {
     _sexpr (falsey $sexpr)
   }
 
-  rule { (eq ) } => {
-    true
-  }
-  rule { (eq $sexpr1 $sexpr2) } => {
-    _sexpr (equals $sexpr1 $sexpr2)
-  }
-  rule { (eq $sexpr1 $sexpr2 $sexprs ...) } => {
-    _sexpr (and (eq $sexpr1 $sexpr2) (eq $sexpr2 $sexprs ...))
+  rule { (eq $sexprs ...) } => {
+    _sexpr (equals $sexprs ...)
   }
 
   rule { (neq $sexprs ...) } => {
@@ -286,36 +250,23 @@ macro _sexpr {
     undefined
   }
 
-  rule { (and $sexpr1 ) } => {
-    _sexpr (truthy $sexpr1)
+  rule { (and $sexpr) } => {
+    _sexpr (truthy $sexpr)
   }
-  rule { (and $sexpr1 $sexprs ...) } => {
-    _sexpr (truthy $sexpr1) && _sexpr (and $sexprs ...)
-  }
-  rule { (and) } => {
-    true
+  rule { (and $sexpr $sexprs ...) } => {
+    _sexpr (truthy $sexpr) && _sexpr (and $sexprs ...)
   }
 
-  rule { (or $sexpr1 ) } => {
-    _sexpr (truthy $sexpr1) 
+  rule { (or $sexpr) } => {
+    _sexpr (truthy $sexpr)
   }
-  rule { (or $sexpr1 $sexprs ...) } => {
-    _sexpr (truthy $sexpr1) || _sexpr (or $sexprs ...)
-  }
-  rule { (or) } => {
-    false
+  rule { (or $sexpr $sexprs ...) } => {
+    _sexpr (truthy $sexpr) || _sexpr (or $sexprs ...)
   }
 
-  // FIXME: $v cannot be in js object property access notation
-  // at least until we solve the sweet.js issue
-  rule { (letv [$k $v $rest ...] $sexprs ...) } => {
-    (function ($k) {
-      return (_sexpr (letv [$rest ...] $sexprs ...));
-    })(_sexpr $v)
-  }
-  rule { (letv [] $sexprs ...) } => {
-    (function () {
-      _return_sexprs ($sexprs ...)
+  rule { (letv [$bindings ...] $sexprs ...) } => {
+    (function() {
+      _letv ([$bindings ...] $sexprs ...)
     })()
   }
 
@@ -333,16 +284,21 @@ macro _sexpr {
     })()
   }
 
-  rule { (loop $kvs $sexprs ...) } => {
-    _loop $kvs $sexprs ...
+  rule { (loop [$bindings ...] $sexprs ...) } => {
+    (function() {
+      var res = {};
+      do {
+        res = (function() {
+          _loop_letv ([$bindings ...] 0 (res._ki_vals) $sexprs ...);
+        })();
+      }
+      while ((res || 0)._ki_recur);
+      return res;
+    })()
   }
 
-  rule { (recur $els ...) } => {
-    //(function () {
-    //  var vals = _els ($els ...);
-    //  return {_ki_recur: true, _ki_vals: vals};
-    //})()
-    {_ki_recur: true, _ki_vals: [_els ($els ...)]}
+  rule { (recur $args ...) } => {
+    {_ki_recur: true, _ki_vals: [_args ($args ...)]}
   }
 
   rule { (def $n $sexpr) } => {
@@ -350,53 +306,110 @@ macro _sexpr {
   }
 
   // TODO: docstring
-  rule { (defn $n [$els ...] $sexprs ...) } => {
-    _sexpr (def $n (fn [$els ...] $sexprs ...))
+  rule { (defn $n [$args ...] $sexprs ...) } => {
+    _sexpr (def $n (fn [$args ...] $sexprs ...))
   }
  
-  rule { (defn $n ([$els ...] $sexprs ...) $rest ...) } => {
-    _sexpr (def $n (fn ([$els ...] $sexprs ...) $rest ...))
+  rule { (defn $n ([$args ...] $sexprs ...) $rest ...) } => {
+    _sexpr (def $n (fn ([$args ...] $sexprs ...) $rest ...))
   }
-  
-  // TODO
-  //rule { (threadf $els ...) } => {
-  //}
-
-  // TODO
-  //rule { (threadl $els ...) } => {
-  //}
-
-  rule { (prn $els ...) } => {
-    console.log(_els ($els ...))
+ 
+  rule { (threadf $v ($fn $args ...)) } => {
+    _sexpr ($fn $v $args ...)
+  }
+  rule { (threadf $v ($fn $args ...) $x ...) } => {
+    _sexpr (threadf ($fn $v $args ...) $x ...)
+  }
+  rule { (threadf $v $el) } => {
+    _sexpr ($el $v)
+  }
+  rule { (threadf $v $el $x ...) } => {
+    _sexpr (threadf ($el $v) $x ...)
   }
 
-  rule { (str $els ...) } => {
+  rule { (threadl $v ($fn $args ...)) } => {
+    _sexpr ($fn $args ... $v)
+  }
+  rule { (threadl $v ($fn $args ...) $x ...) } => {
+    _sexpr (threadl ($fn $args ... $v) $x ...)
+  }
+  rule { (threadl $v $el) } => {
+    _sexpr ($el $v)
+  }
+  rule { (threadl $v $el $x ...) } => {
+    _sexpr (threadl ($el $v) $x ...)
+  }
+
+  rule { (chain $obj $rest ...) } => {
+    $obj _chain ($rest ...)
+  }
+
+  rule { (doto $obj $rest ...) } => {
     (function() {
-      return String.prototype.concat(_els ($els ...))
+      _doto ($obj $rest ...)
+      return $obj;
     })()
   }
 
-  rule { (js $body ...) } => {
-    $body ...
+  rule { (add $args ...) } => {
+    _interpose_op + ($args ...)
   }
 
-  rule { ($els ...) } => {
-    _call ($els ...)
+  rule { (sub $args ...) } => {
+    _interpose_op - ($args ...)
   }
 
-  rule { [$els ...] } => {
-    _sexpr (vector $els ...)
+  rule { (mul $args ...) } => {
+    _interpose_op * ($args ...)
   }
 
-  rule { {$els ...} } => {
-    _sexpr (hash_map $els ...)
+  rule { (div $args ...) } => {
+    _interpose_op / ($args ...)
   }
 
-  rule { ns/:$x } => { _x ns/:$x }
+  rule { (mod $num $div) } => {
+    _sexpr (js $num % $div)
+  }
 
-  rule { :$x } => { _x :$x }
+  rule { (lt $args ...) } => {
+    _compare < ($args ...)
+  }
+  rule { (gt $args ...) } => {
+    _compare > ($args ...)
+  }
+  rule { (leq $args ...) } => {
+    _compare <= ($args ...)
+  }
+  rule { (geq $args ...) } => {
+    _compare >= ($args ...)
+  }
 
-  rule { $x } => { _x $x }
+  rule { (prn $args ...) } => {
+    console.log(_args ($args ...))
+  }
+
+  rule { (str $args ...) } => {
+    (function() {
+      return String.prototype.concat(_args ($args ...))
+    })()
+  }
+
+  rule { ($fn $args ...) } => {
+    _sexpr $fn (_args ($args ...))
+  }
+
+  rule { [$x ...] } => {
+    _sexpr (vector $x ...)
+  }
+
+  rule { {$x ...} } => {
+    _sexpr (hash_map $x ...)
+  }
+
+  rule { $x } => { 
+    _x $x
+  }
+
 }
 
 macro _return_sexprs {
@@ -429,6 +442,9 @@ macro ki {
         namespaces: {},
         modules: {
           core: {
+            truthy: function(v) {
+              return v === false || v == null ? false : true;
+            }
           },
           mori: require('ki/node_modules/mori')
         }
@@ -443,17 +459,136 @@ macro ki {
     return #{_ki.modules.$name = require($module_name)}
   }
 
-  case { $ki (ns $ns $sexprs ...) } => {
-    return #{ 
-      (function() {
-        return _sexpr (ns $ns $sexprs ...) 
-      })()
-    }
-  }
-
   case { $ki ($x ...) } => {
-    // TODO: decide if the anonymous namespace
-    // is persistent or volatile between ki forms
+    
+    var Token = {
+      BooleanLiteral: 1,
+      EOF: 2,
+      Identifier: 3,
+      Keyword: 4,
+      NullLiteral: 5,
+      NumericLiteral: 6,
+      Punctuator: 7,
+      StringLiteral: 8,
+      RegularExpression: 9,
+      Template: 10,
+      Delimiter: 11
+    }
+    
+    function transform(ki_ast, inner) {
+      var content = inner.map(function(el) { return el; });
+      if (content[0].token.type == Token.Punctuator && 
+          content[0].token.value == ':') {
+        content.shift();
+        var name = content.shift();
+        content.forEach(function(el,i) {
+          name.token.value += el.token.value;
+        });
+        name.token.type = Token.StringLiteral;
+        content = [{
+          token: {
+            type: Token.Identifier,
+            value: 'keyword',
+            lineNumber: inner[0].token.lineNumber,
+            lineStart: inner[0].token.lineStart,
+            range: inner[0].token.range},
+          context: inner[0].context,
+          deferredContext: inner[0].deferredContext},
+          name];
+        }
+      else if (content.length == 3 && 
+          content[1].token.type == Token.Punctuator && 
+          content[1].token.value == '/') {
+        content = [{
+          token: {
+            type: Token.Identifier,
+            value: 'ns_get',
+            lineNumber: inner[0].token.lineNumber,
+            lineStart: inner[0].token.lineStart,
+            range: inner[0].token.range},
+          context: inner[0].context,
+          deferredContext: inner[0].deferredContext},
+          content[0], content[2]];
+        }
+      else {
+        content.unshift({
+          token: {
+            type: Token.Identifier,
+            value: 'js',
+            lineNumber: inner[0].token.lineNumber,
+            lineStart: inner[0].token.lineStart,
+            range: inner[0].token.range},
+          context: inner[0].context,
+          deferredContext: inner[0].deferredContext});
+      }
+      ki_ast.push({
+        token: {
+          type: Token.Delimiter,
+          value: '()',
+          startLineNumber: inner[0].token.lineNumber,
+          startLineStart: inner[0].token.lineStart,
+          startRange: inner[0].token.range,
+          inner: content,
+          endLineNumber: inner[0].token.lineNumber,
+          endLineStart: inner[0].token.lineStart,
+          endRange: inner[0].token.range
+        }
+      });
+    }
+    
+    function ast_js_to_ki(ast) {
+    
+      var ki_ast = [];
+      var acc = [];
+      var next = null;
+    
+      ast.forEach(function(el,i) {
+    
+        switch (el.token.type) {
+          case Token.Punctuator:
+            acc.push(el);
+            break;
+          case Token.Identifier:
+          case Token.Keyword:
+            next = ast[i+1];
+            if (next === undefined || next.token.type != Token.Punctuator ||
+                (next.token.type == Token.Punctuator && next.token.value == ':')) {
+              if (acc.length == 0) {
+                ki_ast.push(el);
+              }
+              else {
+                acc.push(el);
+                transform(ki_ast, acc);
+                acc = [];
+              }
+            }
+            else {
+              acc.push(el);
+            }
+            break;
+          case Token.Delimiter:
+            // FIXME: here we're modifying el in place.
+            // We should probably avoid it.
+            if (!(el.token.inner.length > 0 && 
+                  (el.token.inner[0].token.type == Token.Identifier &&
+                   el.token.inner[0].token.value == 'js'))) {
+                     el.token.inner = ast_js_to_ki(el.token.inner);
+                   }
+            ki_ast.push(el);
+            break;
+          default:
+            ki_ast.push(el);
+            break;
+        }
+      });
+    
+      return ki_ast;
+    }
+
+    var x = #{$x ...};
+    var ki_x = ast_js_to_ki(x);
+    letstx $ki_x ... = ki_x;
+ 
     return #{
       (function() { 
         if (_ki.namespaces._anon === undefined) {
@@ -464,7 +599,7 @@ macro ki {
         _ki.intern.bind(this)(_ki.modules.core);
         _ki.intern.bind(this)(_ki.modules.mori);
         _ki.intern.bind(this)(_ki.namespaces[_ki_ns_name].vars);
-        return (_sexpr ($x ...)); 
+        return (_sexpr ($ki_x ...)); 
       })()
     }
   }
