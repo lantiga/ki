@@ -38,14 +38,7 @@ macro _ns {
     letstx $nsname = [makeValue(nsname,#{$ns})];
     return #{
       (function () {
-        if (_ki.namespaces.$ns === undefined) {
-          _ki.namespaces.$ns = { vars: {} };
-        }
-        this._ki_ns_name = $nsname;
-        this._ki_ns_ctx = this;
-        _ki.intern.bind(this)(_ki.modules.core);
-        _ki.intern.bind(this)(_ki.modules.mori);
-        _ki.intern.bind(this)(_ki.namespaces[_ki_ns_name].vars);
+        _ki.init(this,$nsname);
         _return_sexprs ($sexprs ...);
       })()
     }
@@ -448,6 +441,16 @@ macro ki {
   case { _ require core} => {
     return #{
       _ki = {
+        init: function(self, ns_name) {
+          if (_ki.namespaces[ns_name] === undefined) {
+            _ki.namespaces[ns_name] = { vars: {} };
+          }
+          self._ki_ns_name = ns_name;
+          self._ki_ns_ctx = self;
+          _ki.intern.bind(self)(_ki.modules.core);
+          _ki.intern.bind(self)(_ki.modules.mori);
+          _ki.intern.bind(self)(_ki.namespaces[_ki_ns_name].vars);
+        },
         intern: function(obj) {
           for (var e in obj) {
             this[e] = obj[e];
@@ -602,17 +605,10 @@ macro ki {
     var x = #{$x ...};
     var ki_x = ast_js_to_ki(x);
     letstx $ki_x ... = ki_x;
- 
+
     return #{
       (function() { 
-        if (_ki.namespaces._anon === undefined) {
-          _ki.namespaces._anon = { vars: {} };
-        }
-        this._ki_ns_name = '_anon';
-        this._ki_ns_ctx = this;
-        _ki.intern.bind(this)(_ki.modules.core);
-        _ki.intern.bind(this)(_ki.modules.mori);
-        _ki.intern.bind(this)(_ki.namespaces[_ki_ns_name].vars);
+        _ki.init(this,'_ki');
         return (_sexpr ($ki_x ...)); 
       })()
     }
