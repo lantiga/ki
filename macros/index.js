@@ -93,6 +93,16 @@ macro _letv {
   }
 }
 
+macro _letc {
+  rule { ([$k ($fn ...)] $sexprs ...) } => {
+    _sexpr ($fn ... (fn [$k] $sexprs ... nil))
+  }
+  rule { ([$k ($fn ...) $rest ...] $sexprs ...) } => {
+    _sexpr ($fn ... (fn [$k] 
+                     (letc [$rest ...] $sexprs ...) nil))
+  }
+}
+
 macro _loop_letv {
   rule { ([$k $v $rest ...] $i $vals $sexprs ...) } => {
     return (function($k) {
@@ -268,6 +278,10 @@ macro _sexpr {
     (function() {
       _letv ([$bindings ...] $sexprs ...)
     })()
+  }
+
+  rule { (letc [$bindings ...] $sexprs ...) } => {
+    _letc ([$bindings ...] $sexprs ...)
   }
 
   rule { (do $sexprs ...) } => {

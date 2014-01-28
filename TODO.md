@@ -29,11 +29,15 @@
 * **DONE** data literals
 * **DONE** loop, recur, while 
 * **DONE** keywords **TODO** keywords do not evaluate to themselves and do not extract values from collections
-* **DONE** multiple arities **TODO** optional arguments (deferred to destructuring)
+* **DONE** multiple arities
 * **DONE** threading macros 
 * **DONE** chaining, doto
 * **DONE** add sub mul div mod
 * **DONE** lt gt leq geq
+* **DONE** letc (backcalls style continuations)
+* atom swap reset deref
+* apply
+* bind
 
 * **DONE** testing
 
@@ -42,9 +46,28 @@
 
 ## 0.3.0 Add the nice to have
 
-* continuation passing style async macro
+* CPS modeled after tame.js
+  In tame we would have something like
+    (await (setTimeout (defer) 100))
+    (prn "Hello!")
+  which would require exploring the AST. It could become something like
+    (with_defers [a]
+     (await (setTimeout a 100))
+     (prn "Hello!"))
+  or even more explicitly
+    (with_defers [a]
+     (await a (setTimeout a 100))
+     (prn "Hello!"))
+  which could also be used as
+    (with_defers [a]
+     (setTimeout a 100)
+     (await a)
+     (prn "Hello!"))
+  Or just limit defers to last argument as in letc. The advantage over letc is 
+  easier parallelism of e.g. multiple requests to server.
 * destructuring
 * named parameters and defaults
+* optional arguments to functions (catpured in a vector)
 * regular expressions
 * exceptions
 * expression problem

@@ -471,7 +471,35 @@ describe("math operations", function() {
 });
 
 describe("continuations", function() {
-  // TODO
+  
+  it("should allow to write asynchronous code in a synchronous fashion", function() {
+    ki require core
+    var foo = function(x, cb) {
+      var y = x * 2;
+      cb(y);
+    };
+    var bar = function(x, cb) {
+      var y = x + 1;
+      cb(y);
+    };
+    ki (letc [a (foo 2)
+              b (bar a)]
+        (js expect(b).to.eql(5)))
+
+    ki require core
+    var log = "";
+    ki (do
+        (defn fake_request [url cb]
+         (setTimeout (fn [] (cb 1234)) 1000))
+        
+        (letc [data (fake_request "fakeurl")]
+         (js log += "Response received: " + data + ".")
+         (js expect(log).to.eql("Request sent. Response received: 1234.")))
+
+        (js log += "Request sent. "))
+    expect(log).to.eql("Request sent. ");
+  });
+
 });
 
 describe("misc", function() {
