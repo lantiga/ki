@@ -482,9 +482,18 @@ describe("continuations", function() {
       var y = x + 1;
       cb(y);
     };
+    var baz = function(x, cb) {
+      var y = x + 1;
+      var z = x * 2;
+      cb(y,z);
+    };
+
     ki (letc [a (foo 2)
-              b (bar a)]
-        (js expect(b).to.eql(5)))
+              b (bar a)
+              [c d] (baz b)]
+        (js expect(b).to.eql(5))
+        (js expect(c).to.eql(6))
+        (js expect(d).to.eql(10)))
 
     ki require core
     var log = "";

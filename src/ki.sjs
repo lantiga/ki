@@ -87,8 +87,15 @@ macro _letv {
 }
 
 macro _letc {
+  rule { ([[$ks ...] ($fn ...)] $sexprs ...) } => {
+    _sexpr ($fn ... (fn [$ks ...] $sexprs ... nil))
+  }
   rule { ([$k ($fn ...)] $sexprs ...) } => {
     _sexpr ($fn ... (fn [$k] $sexprs ... nil))
+  }
+  rule { ([[$ks ...] ($fn ...) $rest ...] $sexprs ...) } => {
+    _sexpr ($fn ... (fn [$ks ...] 
+                     (letc [$rest ...] $sexprs ...) nil))
   }
   rule { ([$k ($fn ...) $rest ...] $sexprs ...) } => {
     _sexpr ($fn ... (fn [$k] 
