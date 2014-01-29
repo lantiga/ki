@@ -40,7 +40,7 @@ macro _ns {
       (function () {
         _ki.init(this,$nsname);
         _return_sexprs ($sexprs ...);
-      })()
+      }())
     }
   }
 }
@@ -53,7 +53,7 @@ macro _def {
       (function() {
         _ki_ns_ctx[$varname] = _sexpr $sexpr;
         _ki.namespaces[_ki_ns_name].vars.$n = _ki_ns_ctx[$varname]
-      })()
+      }())
     };
   }
 }
@@ -79,7 +79,7 @@ macro _letv {
   rule { ([$k $v $rest ...] $sexprs ...) } => {
     return (function($k) {
       _letv ([$rest ...] $sexprs ...)
-    })(_sexpr $v);
+    }(_sexpr $v));
   }
   rule { ([] $sexprs ...) } => {
     _return_sexprs ($sexprs ...)
@@ -107,7 +107,7 @@ macro _loop_letv {
   rule { ([$k $v $rest ...] $i $vals $sexprs ...) } => {
     return (function($k) {
       _loop_letv ([$rest ...] ($i+1) $vals $sexprs ...)
-    })($vals === undefined ? _sexpr $v : $vals[$i]);
+    }($vals === undefined ? _sexpr $v : $vals[$i]));
   }
   rule { ([] $i $vals $sexprs ...) } => {
     _return_sexprs ($sexprs ...)
@@ -176,7 +176,7 @@ macro _sexpr {
     (function () {
       _ki.intern.bind(_ki_ns_ctx)(_ki.modules.$module);
       _sexpr (use $modules ...);
-    })()
+    }())
   }
 
   rule { (ns_get $ns $x) } => {
@@ -205,13 +205,13 @@ macro _sexpr {
         var f = fnmap[arguments.length] || fnmap[null];
         return f.apply(this,arguments);
       }
-    })()
+    }())
   }
 
   rule { (truthy $sexpr) } => {
     (function (v) {
       return v === false || v == null ? false : true;
-    })(_sexpr $sexpr)
+    }(_sexpr $sexpr))
   }
 
   rule { (falsey $sexpr) } => {
@@ -236,7 +236,7 @@ macro _sexpr {
         return _sexpr $sthen;
       }
       return _sexpr $selse;
-    })()
+    }())
   }
 
   rule { (when $cond $sthen) } => {
@@ -245,7 +245,7 @@ macro _sexpr {
         return _sexpr $sthen;
       }
       return;
-    })()
+    }())
   }
 
   rule { (cond $cond1 $body1 $rest ...) } => {
@@ -254,7 +254,7 @@ macro _sexpr {
         return _sexpr $body1;
       }
       return _sexpr (cond $rest ...);
-    })()
+    }())
   }
   rule { (cond) } => {
     undefined
@@ -277,7 +277,7 @@ macro _sexpr {
   rule { (letv [$bindings ...] $sexprs ...) } => {
     (function() {
       _letv ([$bindings ...] $sexprs ...)
-    })()
+    }())
   }
 
   rule { (letc [$bindings ...] $sexprs ...) } => {
@@ -287,7 +287,7 @@ macro _sexpr {
   rule { (do $sexprs ...) } => {
     (function () {
       _return_sexprs ($sexprs ...)
-    })()
+    }())
   }
 
   rule { (while $cond $sexpr) } => {
@@ -295,7 +295,7 @@ macro _sexpr {
       while (_sexpr (truthy $cond)) {
         _sexpr $sexpr;
       }
-    })()
+    }())
   }
 
   rule { (loop [$bindings ...] $sexprs ...) } => {
@@ -304,11 +304,11 @@ macro _sexpr {
       do {
         res = (function() {
           _loop_letv ([$bindings ...] 0 (res._ki_vals) $sexprs ...);
-        })();
+        }());
       }
       while ((res || 0)._ki_recur);
       return res;
-    })()
+    }())
   }
 
   rule { (recur $args ...) } => {
@@ -362,7 +362,7 @@ macro _sexpr {
     (function() {
       _doto ($obj $rest ...)
       return $obj;
-    })()
+    }())
   }
 
   rule { (add $args ...) } => {
@@ -405,7 +405,7 @@ macro _sexpr {
   rule { (str $args ...) } => {
     (function() {
       return String.prototype.concat(_args ($args ...))
-    })()
+    }())
   }
 
   rule { ($fn $args ...) } => {
@@ -617,7 +617,7 @@ macro ki {
       (function() { 
         _ki.init(this,'_ki');
         return (_sexpr ($ki_x ...)); 
-      })()
+      }())
     }
   }
 }

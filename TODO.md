@@ -28,14 +28,14 @@
   (js new Date) I like this option better (we should document it and that's it)
 * **DONE** data literals
 * **DONE** loop, recur, while 
-* **DONE** keywords **TODO** keywords do not evaluate to themselves and do not extract values from collections
 * **DONE** multiple arities
 * **DONE** threading macros 
 * **DONE** chaining, doto
 * **DONE** add sub mul div mod
 * **DONE** lt gt leq geq
 * **DONE** letc (backcalls style continuations)
-* atom swap reset deref
+* **DONE** keywords **TODO** keywords do not evaluate to themselves and do not extract values from collections
+* atom swap reset deref watchers (read and write)
 * apply
 * bind
 * allow to run in browser
