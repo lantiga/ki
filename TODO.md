@@ -38,6 +38,7 @@
 * atom swap reset deref
 * apply
 * bind
+* allow to run in browser
 
 * **DONE** testing
 

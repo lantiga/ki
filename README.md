@@ -18,7 +18,7 @@ All of [mori](https://github.com/swannodette/mori).
 
 The following (growing) list of functions / special forms
 ```
-fn if when cond and or not eq neq letv do def defn loop recur while nil truthy prn js ns use [] {}
+fn if when cond and or not eq neq letv letc do def defn loop recur while threadf threadl chain doto add sub mul div mod lt gt leq geq nil truthy falsey prn str js ns use [] {}
 ```
 
 ## Examples
