@@ -327,6 +327,41 @@ macro _sexpr {
   rule { (defn $n ([$args ...] $sexprs ...) $rest ...) } => {
     _sexpr (def $n (fn ([$args ...] $sexprs ...) $rest ...))
   }
+
+  rule { (apply $fn $args) } => {
+    $fn.apply(this,$args)
+  }
+
+  rule { (bind $fn $obj) } => {
+    $fn.bind(this)
+  }
+
+  rule { (defmulti $n $dispatch_fn) } => {
+    _sexpr 
+       (defn $n [] 
+        (js
+         if ($n._ki_methods === undefined || $n._ki_methods.length == 0) {
+           return undefined;
+         }
+         var dispatch_fn = _sexpr $dispatch_fn;
+         for (var i=0; i<$n._ki_methods.length; i++) {
+           var dispatch_value = $n._ki_methods[i][0];
+           var fn = $n._ki_methods[i][1];
+           //if ($dispatch_fn.apply(this,arguments) == dispatch_value) {
+           if (equals(dispatch_fn.apply(this,arguments),dispatch_value)) {
+             return fn.apply(this,arguments);
+           }
+         }) nil)
+  }
+ 
+  rule { (defmethod $n $dispatch_val [$args ...] $sexprs ...) } => {
+    (function() {
+      if ($n._ki_methods === undefined) {
+        $n._ki_methods = [];
+      }
+      $n._ki_methods.push([_sexpr $dispatch_val,_sexpr (fn [] $sexprs ...)])
+    }())
+  }
  
   rule { (threadf $v ($fn $args ...)) } => {
     _sexpr ($fn $v $args ...)

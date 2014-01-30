@@ -35,9 +35,10 @@
 * **DONE** lt gt leq geq
 * **DONE** letc (backcalls style continuations)
 * **DONE** keywords **TODO** keywords do not evaluate to themselves and do not extract values from collections
-* atom swap reset deref watchers (read and write)
-* apply
-* bind
+* **DONE** apply **TODO** test
+* **DONE** bind **TODO** test
+* **DONE** multimethods **TODO** test
+* destructuring
 * allow to run in browser
 
 * **DONE** testing
@@ -66,7 +67,6 @@
      (prn "Hello!"))
   Or just limit defers to last argument as in letc. The advantage over letc is 
   easier parallelism of e.g. multiple requests to server.
-* destructuring
 * named parameters and defaults
 * optional arguments to functions (catpured in a vector)
 * regular expressions
