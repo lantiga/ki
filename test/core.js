@@ -511,7 +511,39 @@ describe("continuations", function() {
 
 });
 
-describe("misc", function() {
+describe("apply", function() {
+
+  it("should call a function given a list of arguments supplied as a collection", function() {
+    ki require core
+    var mori = _ki.modules.mori;
+    expect(
+      ki (apply list [1 2 3 4])
+      ).to.eql(mori.list(1,2,3,4));
+  });
+
+});
+
+describe("bind", function() {
+
+  it("should return a function with this set to the provided object", function() {
+    ki require core
+    ki (do 
+        (def a {:a 1 :b 2})
+        (defn f [] (get this :a)))
+    expect(ki ((bind f a))).to.eql(1);
+    expect(ki ((bind (fn [] (get this :a)) a))).to.eql(1);
+  });
+
+});
+
+describe("multimethods", function() {
+
+  it("should allow to ...", function() {
+  });
+
+});
+
+describe("str", function() {
 
   it("should allow to concatenate strings and literals", function() {
     ki require core

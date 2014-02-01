@@ -328,12 +328,16 @@ macro _sexpr {
     _sexpr (def $n (fn ([$args ...] $sexprs ...) $rest ...))
   }
 
+  rule { (apply $fn $obj $args) } => {
+    _sexpr $fn.apply($obj,_sexpr (clj_to_js $args))
+  }
+
   rule { (apply $fn $args) } => {
-    $fn.apply(this,$args)
+    _sexpr $fn.apply(this,_sexpr (clj_to_js $args))
   }
 
   rule { (bind $fn $obj) } => {
-    $fn.bind(this)
+    _sexpr $fn.bind($obj)
   }
 
   rule { (defmulti $n $dispatch_fn) } => {

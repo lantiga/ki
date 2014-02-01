@@ -34,9 +34,9 @@
 * **DONE** add sub mul div mod
 * **DONE** lt gt leq geq
 * **DONE** letc (backcalls style continuations)
+* **DONE** apply 
+* **DONE** bind 
 * **DONE** keywords **TODO** keywords do not evaluate to themselves and do not extract values from collections
-* **DONE** apply **TODO** test
-* **DONE** bind **TODO** test
 * **DONE** multimethods **TODO** test
 * destructuring
 * allow to run in browser
