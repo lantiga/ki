@@ -219,9 +219,11 @@ describe("flow control", function() {
   it("should allow branching consistently with definition of truthiness", function() {
     ki require core
     expect(ki (when (eq 1 1) "foo")).to.eql("foo");
+    expect(ki (when_not (eq 1 2) "foo")).to.eql("foo");
     expect(ki (if "" "foo" "bar")).to.eql("foo");
     expect(ki (if 0 "foo" "bar")).to.eql("foo");
     expect(ki (if nil "foo" "bar")).to.eql("bar");
+    expect(ki (if_not "" "foo" "bar")).to.eql("bar");
   });
 
   it("should have cond be consistent with definition of truthiness", function() {

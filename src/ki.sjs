@@ -238,6 +238,10 @@ macro _sexpr {
     }())
   }
 
+  rule { (if_not $cond $sthen $selse) } => {
+    _sexpr (if (not $cond) $sthen $selse)
+  }
+
   rule { (when $cond $sthen) } => {
     (function() {
       if (_sexpr (truthy $cond)) {
@@ -245,6 +249,10 @@ macro _sexpr {
       }
       return;
     }())
+  }
+
+  rule { (when_not $cond $sthen) } => {
+    _sexpr (when (not $cond) $sthen)
   }
 
   rule { (cond $cond1 $body1 $rest ...) } => {

@@ -18,10 +18,10 @@ All of [mori](https://github.com/swannodette/mori).
 
 The following (growing) list of functions / special forms
 ```
-[] {} add and apply atom bind chain cond def defmethod defmulti 
-defn deref div do doto eq falsey fn geq gt if js leq letc letv lt 
-loop mod mul neq nil not ns or prn recur reset str sub swap threadf 
-threadl truthy use when while 
+[] {} add and apply atom bind chain cond def defmethod defmulti defn 
+deref div do doto eq falsey fn geq gt if if_not js leq letc letv 
+lt loop mod mul neq nil not ns or prn recur reset str sub swap 
+threadf threadl truthy use when when_not while 
 ```
 
 Take a look at the [tests](https://github.com/lantiga/ki/blob/master/test/core.js) to keep up with the latest additions.
