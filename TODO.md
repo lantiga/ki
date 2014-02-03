@@ -37,8 +37,8 @@
 * **DONE** apply 
 * **DONE** bind 
 * **DONE** keywords **TODO** keywords do not evaluate to themselves and do not extract values from collections
-* **DONE** multimethods **TODO** test
-* destructuring
+* **DONE** multimethods 
+* state wrapper
 * allow to run in browser
 
 * **DONE** testing
@@ -48,6 +48,7 @@
 
 ## 0.3.0 Add the nice to have
 
+* destructuring
 * CPS modeled after tame.js
   In tame we would have something like
     (await (setTimeout (defer) 100))

@@ -538,7 +538,14 @@ describe("bind", function() {
 
 describe("multimethods", function() {
 
-  it("should allow to ...", function() {
+  it("should allow to define functions that dispatch according to the result of the evaluation of another function", function() {
+    ki require core
+    ki (do
+        (defmulti boss (fn [x] (get x :type)))
+        (defmethod boss :employee [x] (get x :employer))
+        (defmethod boss :employer [x] (get x :name)));
+    expect(ki (boss {:type :employee :name "Barnie" :employer "Fred"})).to.eql("Fred");
+    expect(ki (boss {:type :employer :name "Fred"})).to.eql("Fred");
   });
 
 });

@@ -363,7 +363,7 @@ macro _sexpr {
       if ($n._ki_methods === undefined) {
         $n._ki_methods = [];
       }
-      $n._ki_methods.push([_sexpr $dispatch_val,_sexpr (fn [] $sexprs ...)])
+      $n._ki_methods.push([_sexpr $dispatch_val,_sexpr (fn [$args ...] $sexprs ...)])
     }())
   }
  

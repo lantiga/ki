@@ -18,8 +18,13 @@ All of [mori](https://github.com/swannodette/mori).
 
 The following (growing) list of functions / special forms
 ```
-fn if when cond and or not eq neq letv letc do def defn loop recur while threadf threadl chain doto add sub mul div mod lt gt leq geq nil truthy falsey prn str js ns use [] {}
+[] {} add and apply bind chain cond def defmethod defmulti 
+defn div do doto eq falsey fn geq gt if js leq letc letv 
+lt loop mod mul neq nil not ns or prn recur str sub threadf 
+threadl truthy use when while 
 ```
+
+Take a look at the [tests](https://github.com/lantiga/ki/blob/master/test/core.js) to keep up with the latest additions.
 
 ## Examples
 
