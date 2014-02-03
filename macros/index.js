@@ -160,7 +160,6 @@ macro _compare {
   }
 }
 
-
 macro _sexpr {
 
   rule { () } => { 
@@ -401,6 +400,52 @@ macro _sexpr {
     (function() {
       _doto ($obj $rest ...)
       return $obj;
+    }())
+  }
+
+  rule { (atom $val) } => {
+    { _ki_val: _sexpr $val, 
+      _ki_wcb: null, 
+      _ki_rcb: null }
+  }
+
+  rule { (atom $val $write_cb) } => {
+    { _ki_val: _sexpr $val, 
+      _ki_wcb: _sexpr $write_cb, 
+      _ki_rcb: null }
+  }
+
+  rule { (atom $val $write_cb $read_cb) } => {
+    { _ki_val: _sexpr $val, 
+      _ki_wcb: _sexpr $write_cb, 
+      _ki_rcb: _sexpr $read_cb }
+  }
+
+  rule { (reset $ref $val) } => {
+    (function() {
+      var val = _sexpr $val;
+      var prev_val = $ref._ki_val;
+      $ref._ki_val = val;
+      if ($ref._ki_wcb) {
+        $ref._ki_wcb(val, prev_val);
+      }
+      return val;
+    }())
+  }
+
+  rule { (swap $ref $fn $args ...) } => {
+    (function() {
+      var val = $ref._ki_val;
+      _sexpr (reset $ref ($fn val $args ...))
+    }())
+  }
+
+  rule { (deref $ref) } => {
+    (function() {
+      if ($ref._ki_rcb) {
+        $ref._ki_rcb($ref._ki_val);
+      }
+      return $ref._ki_val;
     }())
   }
 

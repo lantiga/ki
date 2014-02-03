@@ -550,6 +550,27 @@ describe("multimethods", function() {
 
 });
 
+describe("atoms", function() {
+
+  it("should allow to define reference types with read and write callbacks", function() {
+    ki require core
+
+    ki (do
+        (letv [r (atom 1 (fn [n o] (js expect(n).to.eql(2); expect(o).to.eql(1)))
+                         (fn [x] (js expect(x).to.eql(2))))]
+         (reset r 2)
+         (deref r)));
+
+    ki (do
+        (letv [r (atom 1 (fn [n o] (js expect(n).to.eql(2); expect(o).to.eql(1)))
+                         (fn [x] (js expect(x).to.eql(2))))]
+         (swap r inc)
+         (js expect(ki (deref r)).to.eql(2))));
+
+  });
+
+});
+
 describe("str", function() {
 
   it("should allow to concatenate strings and literals", function() {

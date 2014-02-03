@@ -38,7 +38,7 @@
 * **DONE** bind 
 * **DONE** keywords **TODO** keywords do not evaluate to themselves and do not extract values from collections
 * **DONE** multimethods 
-* state wrapper
+* **DONE** atoms
 * allow to run in browser
 
 * **DONE** testing
