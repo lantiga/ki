@@ -39,7 +39,7 @@
 * **DONE** keywords **NOTE** keywords do not evaluate to themselves and do not extract values from collections
 * **DONE** multimethods 
 * **DONE** atoms
-* **DONE** exceptions **TODO** tests
+* **DONE** exceptions
 * allow to run in browser
 
 * **DONE** testing
