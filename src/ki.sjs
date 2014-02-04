@@ -605,7 +605,7 @@ macro ki {
     var module_name = '';
     module.forEach(function(e) { module_name += e.token.value; });
     letstx $module_name = [makeValue(module_name,#{$name})];
-    return #{_ki.modules.$name = require($module_name)}
+    return #{_ki.modules.$name = require($module_name);}
   }
 
   case { $ki ($x ...) } => {
