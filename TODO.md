@@ -36,9 +36,10 @@
 * **DONE** letc (backcalls style continuations)
 * **DONE** apply 
 * **DONE** bind 
-* **DONE** keywords **TODO** keywords do not evaluate to themselves and do not extract values from collections
+* **DONE** keywords **NOTE** keywords do not evaluate to themselves and do not extract values from collections
 * **DONE** multimethods 
 * **DONE** atoms
+* **DONE** exceptions **TODO** tests
 * allow to run in browser
 
 * **DONE** testing
@@ -71,7 +72,6 @@
 * named parameters and defaults
 * optional arguments to functions (catpured in a vector)
 * regular expressions
-* exceptions
 * expression problem
 * additional functions/forms
   * condp case

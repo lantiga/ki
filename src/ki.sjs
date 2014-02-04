@@ -457,6 +457,39 @@ macro _sexpr {
     }())
   }
 
+  rule { (try $body catch $e $catch_expr) } => {
+    (function() {
+      try {
+        _sexpr $body
+      }
+      catch ($e) {
+        _sexpr $catch_expr
+      }
+    }())
+  }
+
+  rule { (try $body catch $e $catch_expr finally $finally_expr) } => {
+    (function() {
+      var ret;
+      try {
+        ret = _sexpr $body;
+      }
+      catch ($e) {
+        ret = _sexpr $catch_expr;
+      }
+      finally {
+        _sexpr $finally_expr;
+      }
+      return ret;
+    }())
+  }
+
+  rule { (throw $x) } => {
+    (function() {
+      throw(_sexpr $x);
+    }())
+  }
+
   rule { (add $args ...) } => {
     _interpose_op + ($args ...)
   }

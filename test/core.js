@@ -573,6 +573,30 @@ describe("atoms", function() {
 
 });
 
+describe("exceptions", function() {
+
+  it("should allow to try expressions and catch exceptions", function() {
+
+    ki require core
+
+    ki (try foo.bar catch e (js expect(e).to.be.a(ReferenceError)));
+
+    var side_effect = false;
+    ki (try foo.bar catch e (js expect(e).to.be.a(ReferenceError)) finally (js side_effect = true));
+    expect(side_effect).to.eql(true);
+
+  });
+
+  it("should allow to throw exceptions", function() {
+
+    ki require core
+
+    expect(ki (fn [] (throw (Error "foo")))).to.throwError();
+
+  });
+
+});
+
 describe("str", function() {
 
   it("should allow to concatenate strings and literals", function() {
