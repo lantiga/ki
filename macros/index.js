@@ -1,8 +1,17 @@
 /**
- * ki: a lisp for your JavaScript
+ * ki: the lisp that macroexpands to JavaScript
  * MIT license http://www.opensource.org/licenses/mit-license.php/
  * Copyright (C) 2014 Luca Antiga http://lantiga.github.io
  */
+
+let _sexpr = macro {
+
+  /*__macros__*/
+
+  rule { $x } => {
+    _sexpr_core $x
+  }
+}
 
 macro _args {
   rule { () } => {
@@ -160,7 +169,7 @@ macro _compare {
   }
 }
 
-macro _sexpr {
+macro _sexpr_core {
 
   rule { () } => { 
   }

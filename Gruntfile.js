@@ -11,6 +11,10 @@ module.exports = function(grunt) {
   });
 
   grunt.registerTask('build', function() {
+    //var macro = '';
+    //var files = ['ki.sjs','react.sjs','core.sjs'];
+    //files.forEach(function(f) { macro += grunt.file.read('./src/' + f) + '\n'; });
+    // TODO: add filenames of macro files as arguments
     var macro = grunt.file.read('./src/ki.sjs');
     grunt.file.write('./macros/index.js', macro);
   });
