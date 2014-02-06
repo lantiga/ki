@@ -79,25 +79,15 @@ ki (take 6 (map (fn [x] (js x * 2)) (range 1000)))
 
 ## Get it
 
-First install [sweet.js](http://sweetjs.org) if you don't have it already
+    $ npm install -g ki
 
-    $ npm install -g sweet.js
+All set. Now to compile a JavaScript file containing ki code into a plain JavaScript file do
 
-Note that sweet.js 0.4.0 is required, so make sure it's up to date
-
-    $ npm update -g sweet.js
-
-Then
-
-    $ npm install ki
-
-All set. Now to compile a ki js file into a plain js file do
-
-    $ sjs -m ki/macros -o foo_build.js foo.js
+    $ ki -o foo_build.js foo.js
 
 To watch the file and have it automatically compiled whenever the file changes on disk
 
-    $ sjs -m ki/macros -o foo_build.js -w foo.js
+    $ ki -w -o foo_build.js foo.js
 
 
 ## License

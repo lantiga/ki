@@ -604,7 +604,19 @@ macro ki {
               return v === false || v == null ? false : true;
             }
           },
-          mori: require('ki/node_modules/mori')
+          mori: (function() { 
+            try {
+              return require('ki/node_modules/mori') 
+            }
+            catch (e) {
+              try {
+                return require('mori') 
+              }
+              catch (e) {
+                return mori;
+              }
+            }
+          }())
         }
       }; 
     }
