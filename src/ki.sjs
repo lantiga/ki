@@ -627,7 +627,7 @@ macro ki {
     return #{_ki.modules.$name = (function() { 
       try { return require($module_name) } 
       catch (e) { return $name }
-    } ())}
+    } ());}
   }
   case { _ require $module} => {
     var module_name = unwrapSyntax(#{$module});
@@ -635,7 +635,7 @@ macro ki {
     return #{_ki.modules.$module = (function() { 
       try { return require($module_name) } 
       catch (e) { return $module }
-    } ())}
+    } ());}
   }
 
   case { $ki ($x ...) } => {
