@@ -628,6 +628,11 @@ macro ki {
     letstx $module_name = [makeValue(module_name,#{$name})];
     return #{_ki.modules.$name = require($module_name);}
   }
+  case { _ require $module} => {
+    var module_name = unwrapSyntax(#{$module});
+    letstx $module_name = [makeValue(module_name,#{$module})];
+    return #{_ki.modules.$module = require($module_name);}
+  }
 
   case { $ki ($x ...) } => {
     
