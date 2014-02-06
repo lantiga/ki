@@ -17,6 +17,9 @@
     "macro",
     "sweet-macros"
   ],
+  "bin": {
+    "ki": "bin/ki"
+  },
   "author": "Luca Antiga http://lantiga.github.io",
   "license": "MIT",
   "readmeFilename": "README.md",
