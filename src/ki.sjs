@@ -621,17 +621,21 @@ macro ki {
       }; 
     }
   }
-  case { _ require $module ... as $name} => {
-    var module = #{$module ...};
-    var module_name = '';
-    module.forEach(function(e) { module_name += e.token.value; });
-    letstx $module_name = [makeValue(module_name,#{$name})];
-    return #{_ki.modules.$name = require($module_name);}
+  case { _ require $module as $name} => {
+    var module_name = unwrapSyntax(#{$module});
+    letstx $module_name = [makeValue(module_name,#{$module})];
+    return #{_ki.modules.$name = (function() { 
+      try { return require($module_name) } 
+      catch (e) { return $name }
+    } ())}
   }
   case { _ require $module} => {
     var module_name = unwrapSyntax(#{$module});
     letstx $module_name = [makeValue(module_name,#{$module})];
-    return #{_ki.modules.$module = require($module_name);}
+    return #{_ki.modules.$module = (function() { 
+      try { return require($module_name) } 
+      catch (e) { return $module }
+    } ())}
   }
 
   case { $ki ($x ...) } => {
