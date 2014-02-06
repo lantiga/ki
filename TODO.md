@@ -40,7 +40,7 @@
 * **DONE** multimethods 
 * **DONE** atoms
 * **DONE** exceptions
-* allow to run in browser
+* **DONE** allow generated scripts to run in browser (avoid require)
 
 * **DONE** testing
 
