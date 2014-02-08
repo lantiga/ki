@@ -36,7 +36,7 @@
 * **DONE** letc (backcalls style continuations)
 * **DONE** apply 
 * **DONE** bind 
-* **DONE** keywords **NOTE** keywords do not evaluate to themselves and do not extract values from collections
+* **DONE** keywords **NOTE** keywords do not evaluate to themselves and do not extract values from collections. We could add a reader macro for this (**TODO**).
 * **DONE** multimethods 
 * **DONE** atoms
 * **DONE** exceptions

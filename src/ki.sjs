@@ -4,12 +4,37 @@
  * Copyright (C) 2014 Luca Antiga http://lantiga.github.io
  */
 
-let _sexpr = macro {
+macro _arr {
+  rule { () } => {
+  }
 
-  /*__macros__*/
+  rule { ($arg) } => {
+    _sexpr $arg
+  }
 
-  rule { $x } => {
-    _sexpr_core $x
+  rule { ($arg $args ...) } => {
+    _sexpr $arg, _arr ($args ...)
+  }
+}
+
+macro _obj {
+  rule { () } => {
+  }
+  
+  rule { ((keyword $k) $v) } => {
+    _sexpr $k: _sexpr $v
+  }
+
+  rule { ((keyword $k) $v $args ...) } => {
+    _sexpr $k: _sexpr $v, _obj ($args ...)
+  }
+
+  rule { ($k $v) } => {
+    _sexpr $k: _sexpr $v
+  }
+
+  rule { ($k $v $args ...) } => {
+    _sexpr $k: _sexpr $v, _obj ($args ...)
   }
 }
 
@@ -169,11 +194,13 @@ macro _compare {
   }
 }
 
-macro _sexpr_core {
+macro _sexpr {
 
   rule { () } => { 
   }
   
+  /*__macros__*/
+
   rule { (ns $ns $sexprs ...) } => {
     _ns $ns $sexprs ...
   }
@@ -544,6 +571,14 @@ macro _sexpr_core {
 
   rule { ($fn $args ...) } => {
     _sexpr $fn (_args ($args ...))
+  }
+
+  rule { [$ $x ...] } => {
+    [_arr ($x ...)]
+  }
+
+  rule { {$ $x ...} } => {
+    {_obj ($x ...)}
   }
 
   rule { [$x ...] } => {

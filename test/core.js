@@ -274,6 +274,22 @@ describe("data literals", function() {
                           "b" (hash_map "c" 5 (vector 6 7) "d")))).to.eql(true);
   });
 
+  it("should allow to create js arrays", function() {
+    ki require core
+    expect(ki (do [$ 1 2 3 4])).to.eql([1,2,3,4]);
+  });
+
+  it("should allow to create js objects", function() {
+    ki require core
+    expect(ki (do {$ "a" 1 "b" 2})).to.eql({a: 1, b: 2});
+  });
+
+  it("should allow to create nested js objects", function() {
+    ki require core
+    expect(ki (do {$ "a" {$ "c" [$ 3 4]} "b" 2})).to.eql({a: {c: [3, 4]}, b: 2});
+  });
+
+
 });
 
 describe("recursion", function() {
