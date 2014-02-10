@@ -41,6 +41,8 @@
 * **DONE** atoms
 * **DONE** exceptions
 * **DONE** allow generated scripts to run in browser (avoid require)
+* **DONE** fnth (fn bound to this) **TODO** test
+* **DONE** be consistent in binding to this **TODO** test
 
 * **DONE** testing
 

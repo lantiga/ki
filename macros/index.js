@@ -84,7 +84,7 @@ macro _def {
     var varname = unwrapSyntax(#{$n});
     letstx $varname = [makeValue(varname,#{$n})];
     return #{
-      (function() {
+      (function () {
         _ki_ns_ctx[$varname] = _sexpr $sexpr;
         _ki.namespaces[_ki_ns_name].vars.$n = _ki_ns_ctx[$varname]
       }())
@@ -111,9 +111,9 @@ macro _fnmap {
 
 macro _letv {
   rule { ([$k $v $rest ...] $sexprs ...) } => {
-    return (function($k) {
+    return (function ($k) {
       _letv ([$rest ...] $sexprs ...)
-    }(_sexpr $v));
+    }.bind(this)(_sexpr $v));
   }
   rule { ([] $sexprs ...) } => {
     _return_sexprs ($sexprs ...)
@@ -139,7 +139,7 @@ macro _letc {
 
 macro _loop_letv {
   rule { ([$k $v $rest ...] $i $vals $sexprs ...) } => {
-    return (function($k) {
+    return (function ($k) {
       _loop_letv ([$rest ...] ($i+1) $vals $sexprs ...)
     }($vals === undefined ? _sexpr $v : $vals[$i]));
   }
@@ -228,6 +228,12 @@ macro _sexpr {
     }
   }
 
+  rule { (fnth [$args ...] $sexprs ...) } => {
+    function ($args(,)...) {
+      _return_sexprs ($sexprs ...)
+    }.bind(this)
+  }
+
   rule { (fn $sexprs ...) } => {
     (function () {
       var fnmap = {_fnmap $sexprs(,) ...};
@@ -240,13 +246,13 @@ macro _sexpr {
         var f = fnmap[arguments.length] || fnmap[null];
         return f.apply(this,arguments);
       }
-    }())
+    }.bind(this)())
   }
 
   rule { (truthy $sexpr) } => {
     (function (v) {
       return v === false || v == null ? false : true;
-    }(_sexpr $sexpr))
+    }.bind(this)(_sexpr $sexpr))
   }
 
   rule { (falsey $sexpr) } => {
@@ -266,12 +272,12 @@ macro _sexpr {
   }
 
   rule { (if $cond $sthen $selse) } => {
-    (function() {
+    (function () {
       if (_sexpr (truthy $cond)) {
         return _sexpr $sthen;
       }
       return _sexpr $selse;
-    }())
+    }.bind(this)())
   }
 
   rule { (if_not $cond $sthen $selse) } => {
@@ -279,12 +285,12 @@ macro _sexpr {
   }
 
   rule { (when $cond $sthen) } => {
-    (function() {
+    (function () {
       if (_sexpr (truthy $cond)) {
         return _sexpr $sthen;
       }
       return;
-    }())
+    }.bind(this)())
   }
 
   rule { (when_not $cond $sthen) } => {
@@ -292,12 +298,12 @@ macro _sexpr {
   }
 
   rule { (cond $cond1 $body1 $rest ...) } => {
-    (function() {
+    (function () {
       if (_sexpr (truthy $cond1)) {
         return _sexpr $body1;
       }
       return _sexpr (cond $rest ...);
-    }())
+    }.bind(this)())
   }
   rule { (cond) } => {
     undefined
@@ -318,9 +324,9 @@ macro _sexpr {
   }
 
   rule { (letv [$bindings ...] $sexprs ...) } => {
-    (function() {
+    (function () {
       _letv ([$bindings ...] $sexprs ...)
-    }())
+    }.bind(this)())
   }
 
   rule { (letc [$bindings ...] $sexprs ...) } => {
@@ -330,7 +336,7 @@ macro _sexpr {
   rule { (do $sexprs ...) } => {
     (function () {
       _return_sexprs ($sexprs ...)
-    }())
+    }.bind(this)())
   }
 
   rule { (while $cond $sexpr) } => {
@@ -338,20 +344,20 @@ macro _sexpr {
       while (_sexpr (truthy $cond)) {
         _sexpr $sexpr;
       }
-    }())
+    }.bind(this)())
   }
 
   rule { (loop [$bindings ...] $sexprs ...) } => {
-    (function() {
+    (function () {
       var res = {};
       do {
-        res = (function() {
+        res = (function () {
           _loop_letv ([$bindings ...] 0 (res._ki_vals) $sexprs ...);
         }());
       }
       while ((res || 0)._ki_recur);
       return res;
-    }())
+    }.bind(this)())
   }
 
   rule { (recur $args ...) } => {
@@ -394,7 +400,6 @@ macro _sexpr {
          for (var i=0; i<$n._ki_methods.length; i++) {
            var dispatch_value = $n._ki_methods[i][0];
            var fn = $n._ki_methods[i][1];
-           //if ($dispatch_fn.apply(this,arguments) == dispatch_value) {
            if (equals(dispatch_fn.apply(this,arguments),dispatch_value)) {
              return fn.apply(this,arguments);
            }
@@ -402,7 +407,7 @@ macro _sexpr {
   }
  
   rule { (defmethod $n $dispatch_val [$args ...] $sexprs ...) } => {
-    (function() {
+    (function () {
       if ($n._ki_methods === undefined) {
         $n._ki_methods = [];
       }
@@ -441,10 +446,10 @@ macro _sexpr {
   }
 
   rule { (doto $obj $rest ...) } => {
-    (function() {
+    (function () {
       _doto ($obj $rest ...)
       return $obj;
-    }())
+    }.bind(this)())
   }
 
   rule { (atom $val) } => {
@@ -466,7 +471,7 @@ macro _sexpr {
   }
 
   rule { (reset $ref $val) } => {
-    (function() {
+    (function () {
       var val = _sexpr $val;
       var prev_val = $ref._ki_val;
       $ref._ki_val = val;
@@ -474,38 +479,38 @@ macro _sexpr {
         $ref._ki_wcb(val, prev_val);
       }
       return val;
-    }())
+    }.bind(this)())
   }
 
   rule { (swap $ref $fn $args ...) } => {
-    (function() {
+    (function () {
       var val = $ref._ki_val;
       _sexpr (reset $ref ($fn val $args ...))
-    }())
+    }.bind(this)())
   }
 
   rule { (deref $ref) } => {
-    (function() {
+    (function () {
       if ($ref._ki_rcb) {
         $ref._ki_rcb($ref._ki_val);
       }
       return $ref._ki_val;
-    }())
+    }.bind(this)())
   }
 
   rule { (try $body catch $e $catch_expr) } => {
-    (function() {
+    (function () {
       try {
         _sexpr $body
       }
       catch ($e) {
         _sexpr $catch_expr
       }
-    }())
+    }.bind(this)())
   }
 
   rule { (try $body catch $e $catch_expr finally $finally_expr) } => {
-    (function() {
+    (function () {
       var ret;
       try {
         ret = _sexpr $body;
@@ -517,13 +522,13 @@ macro _sexpr {
         _sexpr $finally_expr;
       }
       return ret;
-    }())
+    }.bind(this)())
   }
 
   rule { (throw $x) } => {
-    (function() {
+    (function () {
       throw(_sexpr $x);
-    }())
+    }.bind(this)())
   }
 
   rule { (add $args ...) } => {
@@ -564,9 +569,9 @@ macro _sexpr {
   }
 
   rule { (str $args ...) } => {
-    (function() {
+    (function () {
       return String.prototype.concat(_args ($args ...))
-    }())
+    }.bind(this)())
   }
 
   rule { ($fn $args ...) } => {
@@ -617,7 +622,7 @@ macro ki {
   case { _ require core} => {
     return #{
       _ki = {
-        init: function(self, ns_name) {
+        init: function (self, ns_name) {
           if (_ki.namespaces[ns_name] === undefined) {
             _ki.namespaces[ns_name] = { vars: {} };
           }
@@ -627,7 +632,7 @@ macro ki {
           _ki.intern.bind(self)(_ki.modules.mori);
           _ki.intern.bind(self)(_ki.namespaces[_ki_ns_name].vars);
         },
-        intern: function(obj) {
+        intern: function (obj) {
           for (var e in obj) {
             this[e] = obj[e];
           }
@@ -635,11 +640,11 @@ macro ki {
         namespaces: {},
         modules: {
           core: {
-            truthy: function(v) {
+            truthy: function (v) {
               return v === false || v == null ? false : true;
             }
           },
-          mori: (function() { 
+          mori: (function () { 
             try {
               return require('ki/node_modules/mori') 
             }
@@ -659,18 +664,18 @@ macro ki {
   case { _ require $module as $name} => {
     var module_name = unwrapSyntax(#{$module});
     letstx $module_name = [makeValue(module_name,#{$module})];
-    return #{_ki.modules.$name = (function() { 
+    return #{_ki.modules.$name = (function () { 
       try { return require($module_name) } 
       catch (e) { return $name }
-    } ());}
+    }());}
   }
   case { _ require $module} => {
     var module_name = unwrapSyntax(#{$module});
     letstx $module_name = [makeValue(module_name,#{$module})];
-    return #{_ki.modules.$module = (function() { 
+    return #{_ki.modules.$module = (function () { 
       try { return require($module_name) } 
       catch (e) { return $module }
-    } ());}
+    }());}
   }
 
   case { $ki ($x ...) } => {
@@ -690,12 +695,12 @@ macro ki {
     }
     
     function transform(ki_ast, inner) {
-      var content = inner.map(function(el) { return el; });
+      var content = inner.map(function (el) { return el; });
       if (content[0].token.type == Token.Punctuator && 
           content[0].token.value == ':') {
         content.shift();
         var name = content.shift();
-        content.forEach(function(el,i) {
+        content.forEach(function (el,i) {
           name.token.value += el.token.value;
         });
         name.token.type = Token.StringLiteral;
@@ -756,7 +761,7 @@ macro ki {
       var acc = [];
       var next = null;
     
-      ast.forEach(function(el,i) {
+      ast.forEach(function (el,i) {
     
         switch (el.token.type) {
           case Token.Punctuator:
@@ -804,7 +809,7 @@ macro ki {
     letstx $ki_x ... = ki_x;
 
     return #{
-      (function() { 
+      (function () { 
         _ki.init(this,'_ki');
         return (_sexpr ($ki_x ...)); 
       }())
