@@ -548,8 +548,8 @@ describe("bind", function() {
     ki (do 
         (def a {:a 1 :b 2})
         (defn f [] (get this :a)))
-    expect(ki ((bind f a))).to.eql(1);
-    expect(ki ((bind (fn [] (get this :a)) a))).to.eql(1);
+    expect(ki ((bind a f))).to.eql(1);
+    expect(ki ((bind a (fn [] (get this :a))))).to.eql(1);
   });
 
 });
@@ -608,6 +608,41 @@ describe("exceptions", function() {
     ki require core
 
     expect(ki (fn [] (throw (Error "foo")))).to.throwError();
+
+  });
+
+});
+
+describe("this and fnth", function() {
+
+  it("should handle binding this fn-wise correctly from within IIFN", function() {
+
+    ki require core
+
+    ki (defn somefn [] (letv [a 1] this.someprop));
+    var bar = {someprop: 1};
+    var baz = {};
+
+    expect(ki ((bind bar somefn))).to.eql(1);
+    expect(ki ((bind baz somefn))).to.eql(undefined);
+    expect(ki (somefn)).to.eql(undefined);
+
+  });
+
+  it("should allow a shorthand notation for defining a fn bound to the enclosing this", function() {
+
+    ki require core
+
+    var fn1, fn2;
+    ki (do
+         (js this.jee = 1)
+         (letv [a (fn [] this.jee)
+                b (fnth [] this.jee)]
+           (js fn1 = a)
+           (js fn2 = b)));
+
+    expect(fn1.bind({jee: 2})()).to.eql(2);
+    expect(fn2.bind({jee: 2})()).to.eql(1);
 
   });
 

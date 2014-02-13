@@ -385,7 +385,7 @@ macro _sexpr {
     _sexpr $fn.apply(this,_sexpr (clj_to_js $args))
   }
 
-  rule { (bind $fn $obj) } => {
+  rule { (bind $obj $fn) } => {
     _sexpr $fn.bind($obj)
   }
 
@@ -677,6 +677,10 @@ macro ki {
       catch (e) { return $module }
     }());}
   }
+
+  //case {_ macro ($x ...) ($y ...)} => {
+  //  return #{};
+  //}
 
   case { $ki ($x ...) } => {
     

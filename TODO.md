@@ -41,17 +41,18 @@
 * **DONE** atoms
 * **DONE** exceptions
 * **DONE** allow generated scripts to run in browser (avoid require)
-* **DONE** fnth (fn bound to this) **TODO** test
-* **DONE** be consistent in binding to this **TODO** test
+* **DONE** fnth (fn bound to this)
+* **DONE** be consistent in binding to this
 
 * **DONE** testing
 
 * example with node
-* example with React
+* **DONE** example with React
 
 ## 0.3.0 Add the nice to have
 
 * destructuring
+* multiline strings
 * CPS modeled after tame.js
   In tame we would have something like
     (await (setTimeout (defer) 100))
@@ -74,7 +75,7 @@
 * named parameters and defaults
 * optional arguments to functions (catpured in a vector)
 * regular expressions
-* expression problem
+* implement a REPL
 * additional functions/forms
   * condp case
   * for (comprehension)
