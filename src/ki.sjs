@@ -678,9 +678,9 @@ macro ki {
     }());}
   }
 
-  //case {_ macro ($x ...) ($y ...)} => {
-  //  return #{};
-  //}
+  case {_ macro ($x ...) ($y ...)} => {
+    return #{};
+  }
 
   case { $ki ($x ...) } => {
     
