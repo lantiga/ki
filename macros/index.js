@@ -498,7 +498,7 @@ macro _sexpr {
     }.bind(this)())
   }
 
-  rule { (try $body catch $e $catch_expr) } => {
+  rule { (try $body (catch $e $catch_expr)) } => {
     (function () {
       try {
         _sexpr $body
@@ -509,7 +509,7 @@ macro _sexpr {
     }.bind(this)())
   }
 
-  rule { (try $body catch $e $catch_expr finally $finally_expr) } => {
+  rule { (try $body (catch $e $catch_expr) (finally $finally_expr)) } => {
     (function () {
       var ret;
       try {
@@ -630,6 +630,7 @@ macro ki {
           self._ki_ns_ctx = self;
           _ki.intern.bind(self)(_ki.modules.core);
           _ki.intern.bind(self)(_ki.modules.mori);
+          _ki.intern.bind(self)(_ki.modules);
           _ki.intern.bind(self)(_ki.namespaces[_ki_ns_name].vars);
         },
         intern: function (obj) {

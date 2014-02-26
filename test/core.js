@@ -595,10 +595,10 @@ describe("exceptions", function() {
 
     ki require core
 
-    ki (try foo.bar catch e (js expect(e).to.be.a(ReferenceError)));
+    ki (try foo.bar (catch e (js expect(e).to.be.a(ReferenceError))));
 
     var side_effect = false;
-    ki (try foo.bar catch e (js expect(e).to.be.a(ReferenceError)) finally (js side_effect = true));
+    ki (try foo.bar (catch e (js expect(e).to.be.a(ReferenceError))) (finally (js side_effect = true)));
     expect(side_effect).to.eql(true);
 
   });

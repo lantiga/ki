@@ -53,6 +53,7 @@
 
 * destructuring
 * multiline strings
+* consider integrating cspjs
 * CPS modeled after tame.js
   In tame we would have something like
     (await (setTimeout (defer) 100))
