@@ -150,16 +150,16 @@ macro _loop_letv {
 
 macro _chain {
   rule { (($method $args ...)) } => {
-    .$method(_args ($args ...))
+    . _sexpr $method (_args ($args ...))
   }
   rule { ($property) } => {
-    .$property
+    . _sexpr $property
   }
   rule { (($method $args ...) $rest ...) } => {
-    .$method(_args ($args ...)) _chain ($rest ...)
+    . _sexpr $method (_args ($args ...)) _chain ($rest ...)
   }
   rule { ($property $rest ...) } => {
-    .$property _chain ($rest ...)
+    . _sexpr $property _chain ($rest ...)
   }
 }
 
@@ -442,7 +442,7 @@ macro _sexpr {
   }
 
   rule { (chain $obj $rest ...) } => {
-    $obj _chain ($rest ...)
+    _sexpr $obj _chain ($rest ...)
   }
 
   rule { (doto $obj $rest ...) } => {
