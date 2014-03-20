@@ -3,7 +3,7 @@
 
 **lisp + mori, sweet.js**
 
-![ki](http://japanese.berkeley.edu/Pictures/L03/Kanji-ki.jpg)
+![ki](http://ki-lang.org/images/ki-color.svg)
 
 ki is a lisp with Clojure data structures and semantics that can be intermixed with Javascript code at any level.
 
