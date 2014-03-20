@@ -472,11 +472,12 @@ macro _sexpr {
 
   rule { (reset $ref $val) } => {
     (function () {
+      var ref = _sexpr $ref;
       var val = _sexpr $val;
-      var prev_val = $ref._ki_val;
-      $ref._ki_val = val;
-      if ($ref._ki_wcb) {
-        $ref._ki_wcb(val, prev_val);
+      var prev_val = ref._ki_val;
+      ref._ki_val = val;
+      if (ref._ki_wcb) {
+        ref._ki_wcb(val, prev_val);
       }
       return val;
     }.bind(this)())
@@ -484,17 +485,19 @@ macro _sexpr {
 
   rule { (swap $ref $fn $args ...) } => {
     (function () {
-      var val = $ref._ki_val;
-      _sexpr (reset $ref ($fn val $args ...))
+      var ref = _sexpr $ref;
+      var val = ref._ki_val;
+      _sexpr (reset ref ($fn val $args ...))
     }.bind(this)())
   }
 
   rule { (deref $ref) } => {
     (function () {
-      if ($ref._ki_rcb) {
-        $ref._ki_rcb($ref._ki_val);
+      var ref = _sexpr $ref;
+      if (ref._ki_rcb) {
+        ref._ki_rcb(ref._ki_val);
       }
-      return $ref._ki_val;
+      return ref._ki_val;
     }.bind(this)())
   }
 
