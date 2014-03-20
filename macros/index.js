@@ -187,10 +187,10 @@ macro _compare {
     true
   }
   rule { $op ($arg1 $arg2) } => {
-    $arg1 $op $arg2
+    _sexpr $arg1 $op _sexpr $arg2
   }
   rule { $op ($arg1 $arg2 $args ...) } => {
-    _sexpr $arg1 $op $arg2 && _compare $op ($arg2 $args ...)
+    _sexpr $arg1 $op _sexpr $arg2 && _compare $op ($arg2 $args ...)
   }
 }
 
