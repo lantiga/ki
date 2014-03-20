@@ -1,0 +1,36 @@
+body {
+  font-size: medium;
+}
+
+html, button, input, select, textarea,
+.pure-g [class *= "pure-u"],
+.pure-g-r [class *= "pure-u"] {
+  font-family: 'Open Sans', sans-serif;
+}
+
+h3 {
+  margin-top: 30px;
+  margin-bottom: 0px;
+}
+
+h4 {
+  display: inline-block;
+  margin-bottom: 0;
+}
+
+h5 {
+  margin-bottom: 0;
+  display: inline-block;
+  margin-left: 30px;
+  font-weight: normal;
+}
+
+pre {
+  background-color: #eeeeee;
+  padding: 20px;
+}
+
+code {
+  font-family: 'Droid Sans Mono', monospace, serif;
+}
+
