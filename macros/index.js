@@ -487,7 +487,7 @@ macro _sexpr {
     (function () {
       var ref = _sexpr $ref;
       var val = ref._ki_val;
-      _sexpr (reset ref ($fn val $args ...))
+      return _sexpr (reset ref ($fn val $args ...))
     }.bind(this)())
   }
 
