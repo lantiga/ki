@@ -29,9 +29,15 @@ ki has lambdas, lexical scoping, namespaces, local bindings, recursion, persiste
 
 <!-- [ki in 10 minutes]() -->
 
-[ReactJS tutorial in ki](/react.html)
+#### API
 
 [ki reference](/api.html)
+
+#### Examples
+
+[ReactJS tutorial in ki](/react.html)
+
+[Managing state in ki](https://gist.github.com/lantiga/9855416)
 
 ### License
 
