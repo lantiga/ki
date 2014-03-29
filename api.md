@@ -278,6 +278,10 @@ Evaluates the supplied function with the elements of the provided collection as 
 
     (apply add [1 2 3])     => 6
 
+An extra argument can be provided after the function name as the object that will be bound to `this` upon invocation.
+
+    (apply add {$ a 1} [this.a 2 3])     => 6
+
 #### `bind`
 ##### `(bind obj func)`
 
@@ -296,7 +300,7 @@ Returns an anonymous function and binds it to `this` in the current scope (analo
 
       (chain 
        ($ '.shopping-cart')
-       (bind 'click' (fnth [event] (this.customer.purchase this.cart)))))
+       (on 'click' (fnth [event] (this.customer.purchase this.cart)))))
 
 #### `defn`
 ##### `(defn fn_name [arg1 arg2 ...] body)`
