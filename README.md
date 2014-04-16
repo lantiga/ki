@@ -5,6 +5,8 @@
 
 ![ki](http://ki-lang.org/images/ki-color.svg)
 
+See [ki-lang.org](http://ki-lang.org) for more information.
+
 ki is a lisp with Clojure data structures and semantics that can be intermixed with Javascript code at any level.
 
 ki is a thin macro layer on top of [mori](https://github.com/swannodette/mori) plus a few constructs.
@@ -16,7 +18,7 @@ ki is in flux, feel free to test it out but expect glitches.
 
 All of [mori](https://github.com/swannodette/mori).
 
-The following (growing) list of functions / special forms
+The following list of functions / special forms
 ```
 [] {} [$ ] {$ } add and apply atom bind catch chain cond def defmethod defmulti 
 defn deref div do doto eq falsey finally fn fnth geq gt if if_not js leq letc 
