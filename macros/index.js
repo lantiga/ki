@@ -173,27 +173,6 @@ macro _doto {
   }
 }
 
-macro _interpose_op {
-  rule { $op ($arg) } => {
-    _sexpr $arg
-  }
-  rule { $op ($arg $args ...) } => {
-    _sexpr $arg $op _interpose_op $op ($args ...)
-  }
-}
-
-macro _compare {
-  rule { $op ($arg) } => {
-    true
-  }
-  rule { $op ($arg1 $arg2) } => {
-    _sexpr $arg1 $op _sexpr $arg2
-  }
-  rule { $op ($arg1 $arg2 $args ...) } => {
-    _sexpr $arg1 $op _sexpr $arg2 && _compare $op ($arg2 $args ...)
-  }
-}
-
 macro _sexpr {
 
   rule { () } => { 
@@ -247,28 +226,6 @@ macro _sexpr {
         return f.apply(this,arguments);
       }
     }.bind(this)())
-  }
-
-  rule { (truthy $sexpr) } => {
-    (function (v) {
-      return v === false || v == null ? false : true;
-    }.bind(this)(_sexpr $sexpr))
-  }
-
-  rule { (falsey $sexpr) } => {
-    ! _sexpr (truthy $sexpr)
-  }
-
-  rule { (not $sexpr) } => {
-    _sexpr (falsey $sexpr)
-  }
-
-  rule { (eq $sexprs ...) } => {
-    _sexpr (equals $sexprs ...)
-  }
-
-  rule { (neq $sexprs ...) } => {
-    _sexpr (not (eq $sexprs ...))
   }
 
   rule { (if $cond $sthen $selse) } => {
@@ -534,49 +491,6 @@ macro _sexpr {
     }.bind(this)())
   }
 
-  rule { (add $args ...) } => {
-    _interpose_op + ($args ...)
-  }
-
-  rule { (sub $args ...) } => {
-    _interpose_op - ($args ...)
-  }
-
-  rule { (mul $args ...) } => {
-    _interpose_op * ($args ...)
-  }
-
-  rule { (div $args ...) } => {
-    _interpose_op / ($args ...)
-  }
-
-  rule { (mod $num $div) } => {
-    _sexpr (js $num % $div)
-  }
-
-  rule { (lt $args ...) } => {
-    _compare < ($args ...)
-  }
-  rule { (gt $args ...) } => {
-    _compare > ($args ...)
-  }
-  rule { (leq $args ...) } => {
-    _compare <= ($args ...)
-  }
-  rule { (geq $args ...) } => {
-    _compare >= ($args ...)
-  }
-
-  rule { (prn $args ...) } => {
-    console.log(_args ($args ...))
-  }
-
-  rule { (str $args ...) } => {
-    (function () {
-      return String.prototype.concat(_args ($args ...))
-    }.bind(this)())
-  }
-
   rule { ($fn $args ...) } => {
     _sexpr $fn (_args ($args ...))
   }
@@ -644,8 +558,88 @@ macro ki {
         namespaces: {},
         modules: {
           core: {
-            truthy: function (v) {
-              return v === false || v == null ? false : true;
+            truthy: function(x) {
+              return x === false || x == null ? false : true;
+            },
+            falsey: function(x) {
+              return !truthy(x);
+            },
+            not: function(x) {
+              return !truthy(x);
+            },
+            eq: function() { 
+              return equals.apply(null,arguments); 
+            },
+            neq: function() {
+              return !equals.apply(null,arguments); 
+            },
+            add: function() {
+              var res = 0.0;
+              for (var i=0; i<arguments.length; i++) {
+                res += arguments[i];
+              }
+              return res;
+            },
+            sub: function() {
+              var res = arguments[0];
+              for (var i=1; i<arguments.length; i++) {
+                res -= arguments[i];
+              }
+              return res;
+            },
+            mul: function() {
+              var res = 1.0;
+              for (var i=0; i<arguments.length; i++) {
+                res *= arguments[i];
+              }
+              return res;
+            },
+            div: function() {
+              var res = arguments[0];
+              for (var i=1; i<arguments.length; i++) {
+                res /= arguments[i];
+              }
+              return res;
+            },
+            mod: function(a,b) {
+              return a % b;
+            },
+            lt: function() {
+              var res = true;
+              for (var i=0; i<arguments.length-1; i++) {
+                res = res && arguments[i] < arguments[i+1];
+                if (!res) break;
+              }
+              return res;
+            },
+            gt: function() {
+              var res = true;
+              for (var i=0; i<arguments.length-1; i++) {
+                res = res && arguments[i] > arguments[i+1];
+                if (!res) break;
+              }
+              return res;
+            },
+            leq: function() {
+              var res = true;
+              for (var i=0; i<arguments.length-1; i++) {
+                res = res && arguments[i] <= arguments[i+1];
+                if (!res) break;
+              }
+              return res;
+            },
+            geq: function() {
+              var res = true;
+              for (var i=0; i<arguments.length-1; i++) {
+                res = res && arguments[i] >= arguments[i+1];
+              }
+              return res;
+            },
+            prn: function() {
+              console.log.apply(console,arguments);
+            },
+            str: function() {
+              return String.prototype.concat.apply('',arguments);
             }
           },
           mori: (function () { 
