@@ -87,6 +87,7 @@ macro _def {
       (function () {
         _ki_ns_ctx[$varname] = _sexpr $sexpr;
         _ki.namespaces[_ki_ns_name].vars.$n = _ki_ns_ctx[$varname]
+        return _ki_ns_ctx[$varname];
       }())
     };
   }
