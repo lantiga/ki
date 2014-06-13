@@ -455,7 +455,7 @@ Returns the result of the evaluation of the second form if the evaluation of the
     (when_not (gt 2 1) "2 > 1")   => nil
 
 #### `cond`
-##### `(cond cond1 do_if_cont1_truthy cond2 do_if_cond2_falsey ...)`
+##### `(cond cond1 do_if_cont1_truthy cond2 do_if_cond2_truthy ...)`
 
 Returns the result of the evaluation of the second form if the first form evaluates to truthy, the result of the evaluation of the fourth form if the third form evaluates to truthy and so on.
 
