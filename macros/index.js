@@ -114,7 +114,7 @@ macro _letv {
   rule { ([$k $v $rest ...] $sexprs ...) } => {
     return (function ($k) {
       _letv ([$rest ...] $sexprs ...)
-    }.bind(this)(_sexpr $v));
+    }.call(this,_sexpr $v));
   }
   rule { ([] $sexprs ...) } => {
     _return_sexprs ($sexprs ...)
@@ -226,7 +226,7 @@ macro _sexpr {
         var f = fnmap[arguments.length] || fnmap[null];
         return f.apply(this,arguments);
       }
-    }.bind(this)())
+    }.call(this))
   }
 
   rule { (if $cond $sthen $selse) } => {
@@ -235,7 +235,7 @@ macro _sexpr {
         return _sexpr $sthen;
       }
       return _sexpr $selse;
-    }.bind(this)())
+    }.call(this))
   }
 
   rule { (if_not $cond $sthen $selse) } => {
@@ -248,7 +248,7 @@ macro _sexpr {
         return _sexpr $sthen;
       }
       return;
-    }.bind(this)())
+    }.call(this))
   }
 
   rule { (when_not $cond $sthen) } => {
@@ -261,7 +261,7 @@ macro _sexpr {
         return _sexpr $body1;
       }
       return _sexpr (cond $rest ...);
-    }.bind(this)())
+    }.call(this))
   }
   rule { (cond) } => {
     undefined
@@ -284,7 +284,7 @@ macro _sexpr {
   rule { (letv [$bindings ...] $sexprs ...) } => {
     (function () {
       _letv ([$bindings ...] $sexprs ...)
-    }.bind(this)())
+    }.call(this))
   }
 
   rule { (letc [$bindings ...] $sexprs ...) } => {
@@ -294,7 +294,7 @@ macro _sexpr {
   rule { (do $sexprs ...) } => {
     (function () {
       _return_sexprs ($sexprs ...)
-    }.bind(this)())
+    }.call(this))
   }
 
   rule { (while $cond $sexpr) } => {
@@ -302,7 +302,7 @@ macro _sexpr {
       while (_sexpr (truthy $cond)) {
         _sexpr $sexpr;
       }
-    }.bind(this)())
+    }.call(this))
   }
 
   rule { (loop [$bindings ...] $sexprs ...) } => {
@@ -315,7 +315,7 @@ macro _sexpr {
       }
       while ((res || 0)._ki_recur);
       return res;
-    }.bind(this)())
+    }.call(this))
   }
 
   rule { (recur $args ...) } => {
@@ -407,7 +407,7 @@ macro _sexpr {
     (function () {
       _doto ($obj $rest ...)
       return $obj;
-    }.bind(this)())
+    }.call(this))
   }
 
   rule { (atom $val) } => {
@@ -438,7 +438,7 @@ macro _sexpr {
         ref._ki_wcb(val, prev_val);
       }
       return val;
-    }.bind(this)())
+    }.call(this))
   }
 
   rule { (swap $ref $fn $args ...) } => {
@@ -446,7 +446,7 @@ macro _sexpr {
       var ref = _sexpr $ref;
       var val = ref._ki_val;
       return _sexpr (reset ref ($fn val $args ...))
-    }.bind(this)())
+    }.call(this))
   }
 
   rule { (deref $ref) } => {
@@ -456,7 +456,7 @@ macro _sexpr {
         ref._ki_rcb(ref._ki_val);
       }
       return ref._ki_val;
-    }.bind(this)())
+    }.call(this))
   }
 
   rule { (try $body (catch $e $catch_expr)) } => {
@@ -467,7 +467,7 @@ macro _sexpr {
       catch ($e) {
         _sexpr $catch_expr
       }
-    }.bind(this)())
+    }.call(this))
   }
 
   rule { (try $body (catch $e $catch_expr) (finally $finally_expr)) } => {
@@ -483,13 +483,13 @@ macro _sexpr {
         _sexpr $finally_expr;
       }
       return ret;
-    }.bind(this)())
+    }.call(this))
   }
 
   rule { (throw $x) } => {
     (function () {
       throw(_sexpr $x);
-    }.bind(this)())
+    }.call(this))
   }
 
   rule { ($fn $args ...) } => {
