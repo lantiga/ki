@@ -110,10 +110,10 @@ macro _fnmap {
   }
 }
 
-macro _letv {
+macro _let {
   rule { ([$k $v $rest ...] $sexprs ...) } => {
     return (function ($k) {
-      _letv ([$rest ...] $sexprs ...)
+      _let ([$rest ...] $sexprs ...)
     }.call(this,_sexpr $v));
   }
   rule { ([] $sexprs ...) } => {
@@ -138,10 +138,10 @@ macro _letc {
   }
 }
 
-macro _loop_letv {
+macro _loop_let {
   rule { ([$k $v $rest ...] $i $vals $sexprs ...) } => {
     return (function ($k) {
-      _loop_letv ([$rest ...] ($i+1) $vals $sexprs ...)
+      _loop_let ([$rest ...] ($i+1) $vals $sexprs ...)
     }($vals === undefined ? _sexpr $v : $vals[$i]));
   }
   rule { ([] $i $vals $sexprs ...) } => {
@@ -281,9 +281,9 @@ macro _sexpr {
     _sexpr (truthy $sexpr) || _sexpr (or $sexprs ...)
   }
 
-  rule { (letv [$bindings ...] $sexprs ...) } => {
+  rule { ($[let] [$bindings ...] $sexprs ...) } => {
     (function () {
-      _letv ([$bindings ...] $sexprs ...)
+      _let ([$bindings ...] $sexprs ...)
     }.call(this))
   }
 
@@ -310,7 +310,7 @@ macro _sexpr {
       var res = {};
       do {
         res = (function () {
-          _loop_letv ([$bindings ...] 0 (res._ki_vals) $sexprs ...);
+          _loop_let ([$bindings ...] 0 (res._ki_vals) $sexprs ...);
         }());
       }
       while ((res || 0)._ki_recur);

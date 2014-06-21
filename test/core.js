@@ -100,28 +100,28 @@ describe("interoperability", function() {
 
 describe("local bindings and lexical scope", function() {
 
-  it("should allow to define local bindings in a letv form and ensure proper lexical scope", function() {
+  it("should allow to define local bindings in a let form and ensure proper lexical scope", function() {
     ki require core
     expect(
       ki (clj_to_js
-           (letv [a 1 
+           (let [a 1 
                   b 2]
               (vector a b)))
       ).to.eql([1,2]);
     expect(
       ki (clj_to_js
-           (letv [a 0]
-            (letv [a (inc a) 
+           (let [a 0]
+            (let [a (inc a) 
                    b (inc a)]
                (vector a b))))
       ).to.eql([1,2]);
     var c = {d: 1};
     var mori = _ki.modules.mori;
     expect(
-      ki (letv [a c.d
+      ki (let [a c.d
                 b (inc a)
                 e :e]
-            (letv [a (inc a) 
+            (let [a (inc a) 
                    b (inc b)] 
               a)
             (vector a b e))
@@ -574,14 +574,14 @@ describe("atoms", function() {
     ki require core
 
     ki (do
-        (letv [r (atom 1 (fn [n o] (js expect(n).to.eql(2); expect(o).to.eql(1)))
-                         (fn [x] (js expect(x).to.eql(2))))]
+        (let [r (atom 1 (fn [n o] (js expect(n).to.eql(2); expect(o).to.eql(1)))
+                        (fn [x] (js expect(x).to.eql(2))))]
          (reset r 2)
          (deref r)));
 
     ki (do
-        (letv [r (atom 1 (fn [n o] (js expect(n).to.eql(2); expect(o).to.eql(1)))
-                         (fn [x] (js expect(x).to.eql(2))))]
+        (let [r (atom 1 (fn [n o] (js expect(n).to.eql(2); expect(o).to.eql(1)))
+                        (fn [x] (js expect(x).to.eql(2))))]
          (swap r inc)
          (js expect(ki (deref r)).to.eql(2))));
 
@@ -619,7 +619,7 @@ describe("this and fnth", function() {
 
     ki require core
 
-    ki (defn somefn [] (letv [a 1] this.someprop));
+    ki (defn somefn [] (let [a 1] this.someprop));
     var bar = {someprop: 1};
     var baz = {};
 
@@ -636,8 +636,8 @@ describe("this and fnth", function() {
     var fn1, fn2;
     ki (do
          (js this.jee = 1)
-         (letv [a (fn [] this.jee)
-                b (fnth [] this.jee)]
+         (let [a (fn [] this.jee)
+               b (fnth [] this.jee)]
            (js fn1 = a)
            (js fn2 = b)));
 

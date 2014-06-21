@@ -22,7 +22,7 @@ The following list of functions / special forms
 ```
 [] {} [$ ] {$ } add and apply atom bind catch chain cond def defmethod defmulti 
 defn deref div do doto eq falsey finally fn fnth geq gt if if_not js leq letc 
-letv lt loop mod mul neq nil not ns or prn recur reset str sub swap threadf 
+let lt loop mod mul neq nil not ns or prn recur reset str sub swap threadf 
 threadl truthy try use when when_not while 
 ```
 
