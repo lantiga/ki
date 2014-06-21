@@ -31,26 +31,14 @@ title: ki reference
 [Local bindings](#local-bindings)
 [Misc](#misc)
 
-<!--
-#### Core library (mori)
-
-[Fundamentals](#fundamentals)
-[Type predicates](#type-predicates)
-[Collections](#collections)
-[Collection operations](#collection-operations)
-[Vector operations](#vector-operations)
-[Hash map operations](#hash-map-operations)
-[Set operations](#set-operations)
-[Sequences](#sequences)
-[Helpers](#helpers)
--->
-
 <hr/>
 
 ### Basics 
 
 #### `ki require`
+
 ##### `ki require core`
+
 ##### `ki require 'module_name' as name`
 
 Requires a node module using [node's require](http://nodejs.org/api/modules.html#modules_module_require_id) and makes it available to all ki namespaces by binding the returned object to the provided `name`. It has to be called outside ki forms.
