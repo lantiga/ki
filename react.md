@@ -72,8 +72,8 @@ In a more elaborate version global state could be moved to an atom using atom ca
      (defcomp CommentForm
       {$ :handleSubmit 
           (fn []
-           (letv [author (js this.refs.author.getDOMNode().value.trim())
-                  text (js this.refs.text.getDOMNode().value.trim())]
+           (let [author (js this.refs.author.getDOMNode().value.trim())
+                 text (js this.refs.text.getDOMNode().value.trim())]
             (this.props.onCommentSubmit {:author author :text text})
             (js this.refs.author.getDOMNode().value = '')
             (js this.refs.text.getDOMNode().value = '')

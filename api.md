@@ -546,18 +546,18 @@ Evaluates body with the supplied local bindings. If `recur` is reached, re-evalu
 
 ### Local bindings
 
-#### `letv`
-##### `(letv [name1 val1 name2 val2 ...] body ...)`
+#### `let`
+##### `(let [name1 val1 name2 val2 ...] body ...)`
 
 Evaluates body with the supplied local bindings. Returns the result of the last evaluated expression.
 
-    (letv [a 1
-           b 2]
+    (let [a 1
+          b 2]
       (add a b))        => 3
 
-    (letv [a 1]
-      (letv [a (inc a)
-             b 2]
+    (let [a 1]
+      (let [a (inc a)
+            b 2]
         (add a b)))     => 4
 
 #### `letc`
