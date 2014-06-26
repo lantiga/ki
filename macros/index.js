@@ -53,10 +53,10 @@ macro _args {
 
 macro _x {
   case { $ctx null } => {
-    throwSyntaxError('ki','<null> is not a valid identifier, use nil',#{$ctx})
+    throwSyntaxError('ki','<null> is not a valid literal, use nil',#{$ctx})
   }
   case { $ctx undefined } => {
-    throwSyntaxError('ki','<undefined> is not a valid identifier, use nil',#{$ctx})
+    throwSyntaxError('ki','<undefined> is not a valid literal, use nil',#{$ctx})
   }
   case { _ nil } => {
     return #{null}
