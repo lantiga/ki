@@ -73,9 +73,8 @@
     return ki_core.replace('/*__macros__*/',rules.join('\n'));
   }
 
-  var compile = function(src, ki_core, options, uglify, fs) {
-    var module = joinModule(src,ki_core,options.rules);
-    options.modules = sweet.loadModule(module);
+  var compile = function(src, options, uglify, fs) {
+    options.modules = sweet.loadModule(options.modules);
     var result = sweet.compile(src, options);
     if (options.sourceMap) {
       var code = result.code + '\n//# sourceMappingURL=' + options.mapfile;
@@ -103,5 +102,6 @@
 
   exports.compile = compile;
   exports.parseMacros = parseMacros;
+  exports.joinModule = joinModule;
 }))
 
