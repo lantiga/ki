@@ -74,7 +74,10 @@
   }
 
   var compile = function(src, options, uglify, fs) {
-    options.modules = sweet.loadModule(options.modules);
+    if (!options.modules && options.ki_core) {
+      var module = joinModule(src,options.ki_core,options.rules);
+      options.modules = sweet.loadModule(module);
+    }
     var result = sweet.compile(src, options);
     if (options.sourceMap) {
       var code = result.code + '\n//# sourceMappingURL=' + options.mapfile;
@@ -91,6 +94,7 @@
         fs.unlinkSync(tmpfile);
         return { code: result.code, sourceMap: result.map };
       }
+
       return { code: code, sourceMap: sourceMap };
     }
     else if (options.minify) {
@@ -101,7 +105,7 @@
   }
 
   exports.compile = compile;
-  exports.parseMacros = parseMacros;
   exports.joinModule = joinModule;
+  exports.parseMacros = parseMacros;
 }))
 
