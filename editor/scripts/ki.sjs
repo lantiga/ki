@@ -202,16 +202,41 @@ macro _sexpr {
     $body ...
   }
 
+  rule { (fn $name [$args ...] $sexprs ...) } => {
+    function $name($args(,)...) {
+      _return_sexprs ($sexprs ...)
+    }
+  }
+
   rule { (fn [$args ...] $sexprs ...) } => {
     function ($args(,)...) {
       _return_sexprs ($sexprs ...)
     }
   }
 
+  rule { (fnth $name[$args ...] $sexprs ...) } => {
+    function $name($args(,)...) {
+      _return_sexprs ($sexprs ...)
+    }.bind(this)
+  }
+
   rule { (fnth [$args ...] $sexprs ...) } => {
     function ($args(,)...) {
       _return_sexprs ($sexprs ...)
     }.bind(this)
+  }
+
+  rule { (fn $name:ident $sexprs ...) } => {
+    function $name() {
+      var fnmap = {_fnmap $sexprs(,) ...};
+      var max_arity = 0;
+      for (var a in fnmap) {
+        max_arity = a > max_arity ? a : max_arity;
+      }
+      fnmap[null] = fnmap[max_arity];
+      var f = fnmap[arguments.length] || fnmap[null];
+      return f.apply(this,arguments);
+    }
   }
 
   rule { (fn $sexprs ...) } => {

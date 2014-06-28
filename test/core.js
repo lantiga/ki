@@ -79,6 +79,13 @@ describe("lambdas", function() {
       ).to.eql([2,3,4]);
   });
 
+  it("should allow to define named anonymous functions and call them recursively", function() {
+    ki require core
+    expect(
+      ki (clj_to_js (map (fn foobar[x] (if (eq x 1) x (foobar (dec x)))) (vector 1 2 3)))
+      ).to.eql([1,1,1]);
+  });
+
 });
 
 describe("interoperability", function() {
@@ -366,6 +373,15 @@ describe("arity", function() {
       ).to.eql("There 1 2");
   });
 
+  it("should allow to define named anonymous functions with multiple arities and refer to the name within the body", function() {
+    ki require core
+    var f = ki (fn self
+                 ([] (self "world"))
+                 ([who] (str "Hello " who "!")))
+    expect(f()).to.eql("Hello world!");
+    expect(f("yellow")).to.eql("Hello yellow!");
+  });
+
   it("should fallback to max arity in case supplied arguments do not match the specified arities", function() {
     ki require core
     ki (defn foo 
@@ -629,7 +645,7 @@ describe("this and fnth", function() {
 
   });
 
-  it("should allow a shorthand notation for defining a fn bound to the enclosing this", function() {
+  it("should allow a shorthand notation for defining a fn bound to the enclosing this, both named and unnamed", function() {
 
     ki require core
 
@@ -637,12 +653,15 @@ describe("this and fnth", function() {
     ki (do
          (js this.jee = 1)
          (let [a (fn [] this.jee)
-               b (fnth [] this.jee)]
+               b (fnth [] this.jee)
+               c (fnth cfn[] this.jee)]
            (js fn1 = a)
-           (js fn2 = b)));
+           (js fn2 = b)
+           (js fn3 = c)));
 
     expect(fn1.bind({jee: 2})()).to.eql(2);
     expect(fn2.bind({jee: 2})()).to.eql(1);
+    expect(fn3.bind({jee: 2})()).to.eql(1);
 
   });
 
