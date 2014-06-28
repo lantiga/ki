@@ -1,0 +1,141 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Try ki</title>
+  <script src="scripts/jquery.js"></script>
+  <script src="scripts/codemirror.js"></script>
+  <link rel="stylesheet" href="codemirror.css">
+  <link rel="stylesheet" href="theme/sweetprism.css">
+  <script src="mode/javascript/javascript.js"></script>
+  
+  <link href='http://fonts.googleapis.com/css?family=Droid+Sans+Mono|Open+Sans:400italic,400' rel='stylesheet' type='text/css'>
+  <link href='http://fonts.googleapis.com/css?family=Lato:100' rel='stylesheet' type='text/css'>
+  <script data-main="scripts/editor" src="scripts/require.js"></script>
+
+ <style type="text/css">
+ body {
+  font-family: Droid Sans, Arial, sans-serif;
+  line-height: 1.5;
+  /*max-width: 64.3em;*/
+  }
+  .CodeMirror {
+    font-size: 14px;
+    height: 100%;
+  }
+
+  #options {
+    position: absolute;
+    font-size: 14px;
+    font-family: Droid Sans, Arial, sans-serif;
+    line-height: 1.5;
+    top: 10px;
+    right: 40px;
+    z-index: 1;
+  }
+
+  #header {
+    position: absolute;
+    top: 0;
+    right: 50%;
+    bottom: 0;
+    left: 0;
+
+    font-size: 150%;
+    color: rgb(68, 68, 68);
+    font-family: 'Droid Sans Mono',Helvetica Neue,Helvetica,Arial,sans-serif;
+    font-weight: 100;
+    padding-left: 20px;
+  }
+
+  #controls {
+    position: absolute;;
+    top: 5;
+    right: 0;
+    bottom: 0;
+    left: 50%;
+  }
+
+  #return {
+    color: blue;
+    position: absolute;
+    background-color: white;
+    /*right: 10;*/
+    z-index: 10;
+    bottom: 10;
+    /*left: 50%;*/
+    /*padding-top: 20px;*/
+    /*padding-left: 55px;*/
+    padding: 10px;
+  }
+
+  #errors {
+    color: red;
+    position: absolute;
+    background-color: white;
+    /*right: 10;*/
+    z-index: 10;
+    bottom: 10;
+    /*left: 50%;*/
+    /*padding-top: 20px;*/
+    /*padding-left: 55px;*/
+    padding: 10px;
+  }
+
+  #edit-box {
+    position: absolute;
+    top: 30px;
+    right: 50%;
+    bottom: 0;
+    left: 0;
+  }
+
+  #output-box {
+    position: absolute;
+    top: 30px;
+    right: 0;
+    bottom: 0;
+    left: 50%;
+  }
+
+  </style>
+</head>
+<body>
+
+  <div id='header'>
+     Try ki: a lisp for your JavaScript
+  </div>
+  
+  <div id="controls">
+    <input id="btn-reload-macros" type="button" value="Reload macros" />
+    <input id="btn-run" type="button" value="Run (Ctrl+Enter)" />
+    <input id="ck-require" type="checkbox" value="require" />Display require expansion
+  </div>
+
+  <pre id="errors">
+  </pre>
+ 
+  <pre id="return">
+  </pre>
+  
+  <div id='edit-box' style='visibility: hidden;'>
+    <textarea id="editor">/*
+Welcome to ki! 
+
+Here's some code to get you started
+*/
+
+ki require core
+
+var r = ki (range 1 10);
+
+return r;
+    
+    </textarea>
+  </div>
+  
+  <div id='output-box' style='visibility: hidden;'>
+    <textarea id="output"></textarea>
+  </div>
+
+</body>
+</html>

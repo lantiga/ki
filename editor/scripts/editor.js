@@ -6,12 +6,11 @@ requirejs.config({
     }
 });
 
-require(["./sweet", "./syntax"], function(sweet, syn) {
+require(["./ki", "text!ki.sjs", "./mori", "./sweet"], function(ki, ki_core, mori, sweet) {
     var storage_code = 'editor_code';
     var storage_mode = 'editor_mode';
 
     var starting_code = $("#editor").text();
-    var compileWithSourcemap = $("body").attr("data-sourcemap") === "true";
 
     var editor = CodeMirror.fromTextArea($('#editor')[0], {
         lineNumbers: true,
@@ -19,10 +18,13 @@ require(["./sweet", "./syntax"], function(sweet, syn) {
         indentWithTabs: true,
         tabSize: 4,
         autofocus: true,
-        theme: 'solarized dark'
+        theme: 'sweetprism',
+        extraKeys: {
+          "Ctrl-Enter": function(cm) {
+            run();
+          }
+        }
     });
-
-    var currentStep = 1;
 
     if (window.location.hash) {
         editor.setValue(decodeURI(window.location.hash.slice(1)));
@@ -35,29 +37,8 @@ require(["./sweet", "./syntax"], function(sweet, syn) {
 
     var output = CodeMirror.fromTextArea($('#output')[0], {
         lineNumbers: true,
-        theme: 'solarized dark',
+        theme: 'sweetprism',
         readOnly: true
-    });
-
-    $('#btn-vim').click(function() {
-        editor.setOption('keyMap', 'vim');
-        editor.focus();
-        localStorage[storage_mode] = "vim";
-    });
-    $('#btn-emacs').click(function() {
-        editor.setOption('keyMap', 'emacs');
-        editor.focus();
-        localStorage[storage_mode] = "emacs";
-    });
-
-    $('#btn-step').click(function() {
-        var unparsedString = syn.prettyPrint(
-            sweet.expand(editor.getValue(), 
-                         undefined, 
-                         currentStep++),
-            $("#ck-hygiene").prop("checked"));
-        $("#lab-step").text(currentStep);
-        output.setValue(unparsedString); 
     });
 
     var updateTimeout;
@@ -66,33 +47,61 @@ require(["./sweet", "./syntax"], function(sweet, syn) {
         updateTimeout = setTimeout(updateExpand, 200);
     });
 
+    $('#btn-run').click(function() {
+      run();
+    });
+
+    var displayRequire = false;
+    $('#ck-require').click(function() {
+      displayRequire = !displayRequire;
+      updateExpand();
+    });
+
+    var options = {
+      modules: sweet.loadModule(ki.joinModule(editor.getValue(),ki_core))
+    };
+
+    $('#edit-box').css({visibility: 'visible'})
+    $('#output-box').css({visibility: 'visible'})
+
+    $('#btn-reload-macros').click(function() {
+      options.modules = sweet.loadModule(ki.joinModule(editor.getValue(),ki_core));
+    });
+
     function updateExpand() {
         var code = editor.getValue();
-        var expanded, compiled, res;
         window.location = "editor.html#" + encodeURI(code);
         localStorage[storage_code] = code;
         try {
-            if (compileWithSourcemap) {
-                res = sweet.compile(code, {
-                    sourceMap: true,
-                    filename: "test.js",
-                    readableNames: true
-                });
-            } else {
-                res = sweet.compile(code, {
-                    sourceMap: false,
-                    readableNames: true
-                });
+            if (!displayRequire) {
+              code = code.replace('ki require core','');
             }
-            compiled = res.code;
-            output.setValue(compiled);
+            var res = ki.compile(code,options);
+            output.setValue(res.code);
 
             $('#errors').text('');
             $('#errors').hide();
         } catch (e) {
+            $('#return').hide();
             $('#errors').text(e);
             $('#errors').show();
         }
     }
     updateExpand();
+
+    function run() {
+      var code = editor.getValue();
+      var res = ki.compile(code,options);
+      try {
+        $('#errors').text('');
+        $('#errors').hide();
+        $('#return').text('Output: ' + eval('(function() {' + res.code + '}())'));
+        $('#return').show();
+      } catch (e) {
+        $('#return').text('');
+        $('#return').hide();
+        $('#errors').text(e);
+        $('#errors').show();
+      }
+    }
 });
