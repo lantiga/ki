@@ -5,7 +5,7 @@
 
 ![ki](http://ki-lang.org/images/ki-color.svg)
 
-See [ki-lang.org](http://ki-lang.org) for more information.
+See [ki-lang.org](http://ki-lang.org) for more information or [try ki](http://ki-lang.org/editor/editor.html) straight in your browser.
 
 ki is a lisp with Clojure data structures and semantics that can be intermixed with Javascript code at any level.
 
