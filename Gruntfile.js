@@ -17,6 +17,9 @@ module.exports = function(grunt) {
     // TODO: add filenames of macro files as arguments
     var macro = grunt.file.read('./src/ki.sjs');
     grunt.file.write('./macros/index.js', macro);
+    grunt.file.write('./editor/scripts/ki.sjs', macro);
+    var lib = grunt.file.read('./lib/ki.js');
+    grunt.file.write('./editor/scripts/ki.js', lib);
   });
 
   grunt.registerTask('build-test', function() {
