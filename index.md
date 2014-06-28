@@ -13,6 +13,8 @@ ki syntax and semantics are heavily inspired by [Clojure](http://clojure.org). T
 
     var nums = ki (take 6 (map (fn [x] (js x * 2)) (range 1000)));
 
+[**Try ki in your browser**](/editor/editor.html).
+
 ### Installing ki
 
     npm install -g ki
