@@ -401,6 +401,30 @@ describe("arity", function() {
 
 });
 
+describe("dot notation", function() {
+
+  it("should allow to use dot notation to invoke methods on JavaScript objects", function() {
+    ki require core
+    var a = {
+      bar: function(x) {
+        return x*2;
+      }
+    };
+    var b = {
+      foo: function(x) {
+        return a;
+      }
+    };
+    expect(
+      ki (.bar a 2)
+      ).to.eql(4);
+    expect(
+      ki (threadf b (.foo) (.bar 2))
+      ).to.eql(4);
+  });
+
+});
+
 describe("chaining and doto", function() {
 
   it("should allow to use JavaScript chained APIs", function() {
