@@ -397,6 +397,13 @@ macro _sexpr {
       $n._ki_methods.push([_sexpr $dispatch_val,_sexpr (fn [$args ...] $sexprs ...)])
     }())
   }
+
+  rule { (threadf $v ($[.]$fn $args ...)) } => {
+    _sexpr (.$fn $v $args ...)
+  }
+  rule { (threadf $v ($[.]$fn $args ...) $x ...) } => {
+    _sexpr (threadf (.$fn $v $args ...) $x ...)
+  }
  
   rule { (threadf $v ($fn $args ...)) } => {
     _sexpr ($fn $v $args ...)
@@ -410,6 +417,13 @@ macro _sexpr {
   rule { (threadf $v $el $x ...) } => {
     _sexpr (threadf ($el $v) $x ...)
   }
+
+  //rule { (threadl $v ($[.]$fn $args ...)) } => {
+  //  _sexpr (.$fn $args ... $v)
+  //}
+  //rule { (threadl $v ($[.]$fn $args ...) $x ...) } => {
+  //  _sexpr (threadl (.$fn $args ... $v) $x ...)
+  //}
 
   rule { (threadl $v ($fn $args ...)) } => {
     _sexpr ($fn $args ... $v)
@@ -515,6 +529,10 @@ macro _sexpr {
     (function () {
       throw(_sexpr $x);
     }.call(this))
+  }
+
+  rule { ($[.] $fn $obj $args ...) } => {
+    _sexpr $obj . $fn (_args ($args ...))
   }
 
   rule { ($fn $args ...) } => {
@@ -793,7 +811,12 @@ macro ki {
     
         switch (el.token.type) {
           case Token.Punctuator:
-            acc.push(el);
+            if (i == 0 && el.token.value != ':') {
+              ki_ast.push(el);
+            }
+            else {
+              acc.push(el);
+            }
             break;
           case Token.Identifier:
           case Token.Keyword:
