@@ -525,6 +525,16 @@ Treats arguments as JavaScript code, which gets expanded in the enclosing scope.
     (js x + 1)
     (js function(x) { x + 1 })
 
+#### `dot notation`
+
+##### `(.method object arg1 arg2 ...)`
+
+Invokes method on object passed as first argument, using the following arguments as arguments.
+
+    (.toUpperCase "foobar")                     => "FOOBAR"
+    (threadf (str "foo" "bar") 
+      (.toUpperCase) (.replace "BAR" "BAZ"))    => "FOOBAZ"
+
 ### Namespaces
 
 #### `ns`
