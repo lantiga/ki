@@ -1,6 +1,6 @@
 {
   "name": "ki",
-  "version": "0.1.25",
+  "version": "0.1.26",
   "description": "lisp + mori, sweet.js",
   "repository": {
     "type": "git",
@@ -24,15 +24,15 @@
   "license": "MIT",
   "readmeFilename": "README.md",
   "dependencies": {
-    "sweet.js": "~0.5.0",
-    "mori": "~0.2.5",
-    "uglify-js": "~2.4.13",
+    "sweet.js": "~0.7.2",
+    "mori": "~0.2.9",
+    "uglify-js": "~2.4.15",
     "optimist": "~0.6.1"
   },
   "devDependencies": {
-    "mocha": "~1.18.2",
+    "mocha": "~2.0.1",
     "expect.js": "~0.3.1",
     "grunt-cli": "0.1.x",
-    "grunt-mocha-test": "~0.10.0"
+    "grunt-mocha-test": "~0.12.2"
   }
 }
