@@ -110,9 +110,29 @@ macro _fnmap {
   }
 }
 
+macro _destr { 
+  rule { ([$a], $v) } => {
+    var f = _sexpr(first $v);
+    _destr($a,f)
+  }
+  rule { ([$a $b ...], $v) } => {
+    var f = _sexpr(first $v);
+    _destr($a,f)
+    var r = _sexpr(rest $v)
+    _destr([$b ...], r)
+  }
+  //rule { ({$b $a}, $v) } => {
+  //  var $a = _sexpr(first $v);
+  //}
+  rule { ($a, $v) } => {
+    var $a = $v;
+  }
+}
+
 macro _let {
   rule { ([$k $v $rest ...] $sexprs ...) } => {
-    return (function ($k) {
+    return (function (v) {
+      _destr($k, v)
       _let ([$rest ...] $sexprs ...)
     }.call(this,_sexpr $v));
   }
