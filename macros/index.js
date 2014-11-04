@@ -111,6 +111,27 @@ macro _fnmap {
 }
 
 macro _destr { 
+  rule { ([$ $a], $v) } => {
+    var f = $v[0];
+    _destr($a, f)
+  }
+  rule { ([$ $a $b ...], $v) } => {
+    var f = $v[0];
+    _destr($a, f)
+    var r = $v.slice(1);
+    _destr([$ $b ...], r)
+  }
+
+  rule { ({$ $a $b}, $v) } => {
+    var f = $v[$b];
+    _destr($a, f)
+  }
+  rule { ({$ $a $b $c $d ...}, $v) } => {
+    var f = $v[$b];
+    _destr($a, f)
+    _destr({$ $c $d ...}, $v)
+  }
+
   rule { ([$a], $v) } => {
     var f = _sexpr(first $v);
     _destr($a, f)
@@ -121,6 +142,7 @@ macro _destr {
     var r = _sexpr(rest $v)
     _destr([$b ...], r)
   }
+
   rule { ({$a $b}, $v) } => {
     var f = _sexpr(get $v $b);
     _destr($a, f)
@@ -130,6 +152,7 @@ macro _destr {
     _destr($a, f)
     _destr({$c $d ...}, $v)
   }
+
   rule { ($a, $v) } => {
     var $a = $v;
   }
