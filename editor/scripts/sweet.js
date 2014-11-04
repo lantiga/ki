@@ -76,53 +76,32 @@
             if (typeof code !== 'string' && !(code instanceof String)) {
                 code = toString(code);
             }
-            var source$2 = code;
-            if (source$2.length > 0) {
-                if (typeof source$2[0] === 'undefined') {
+            var source = code;
+            if (source.length > 0) {
+                if (typeof source[0] === 'undefined') {
                     // Try first to convert to a string. This is good as fast path
                     // for old IE which understands string indexing for string
                     // literals only and not for string object.
                     if (code instanceof String) {
-                        source$2 = code.valueOf();
+                        source = code.valueOf();
                     }
                     // Force accessing the characters via an array.
-                    if (typeof source$2[0] === 'undefined') {
-                        source$2 = stringToArray(code);
+                    if (typeof source[0] === 'undefined') {
+                        source = stringToArray(code);
                     }
                 }
             }
-            var readTree = parser.read(source$2);
+            var readTree = parser.read(source);
             try {
                 return expandFn(readTree, [stxcaseCtx].concat(modules), options);
             } catch (err) {
                 if (err instanceof syn.MacroSyntaxError) {
-                    throw new SyntaxError(syn.printSyntaxError(source$2, err));
+                    throw new SyntaxError(syn.printSyntaxError(source, err));
                 } else {
                     throw err;
                 }
             }
         };
-    }
-    function expandSyntax(stx, modules, options) {
-        if (!stxcaseCtx) {
-            stxcaseCtx = expander.expandModule(parser.read(stxcaseModule));
-        }
-        var isSyntax = syn.isSyntax(stx);
-        options = options || {};
-        options.flatten = false;
-        if (!isSyntax) {
-            stx = syn.tokensToSyntax(stx);
-        }
-        try {
-            var result = expander.expand(stx, [stxcaseCtx].concat(modules), options);
-            return isSyntax ? result : syn.syntaxToTokens(result);
-        } catch (err) {
-            if (err instanceof syn.MacroSyntaxError) {
-                throw new SyntaxError(syn.printSyntaxError(source, err));
-            } else {
-                throw err;
-            }
-        }
     }
     // fun (Str, {}) -> AST
     function parse(code, modules, options) {
@@ -131,7 +110,6 @@
             // and loc/range info so until we can upgrade hack in a single space
             code = ' ';
         }
-        modules = modules ? loadedMacros.concat(modules) : modules;
         return parser.parse(expand(code, modules, options));
     }
     // (Str, {sourceMap: ?Bool, filename: ?Str})
@@ -159,24 +137,6 @@
             };
         }
         return { code: codegen.generate(ast, _.extend({ comment: true }, options.escodegen)) };
-    }
-    var baseReadtable = Object.create({
-            extend: function (obj) {
-                var extended = Object.create(this);
-                Object.keys(obj).forEach(function (ch) {
-                    extended[ch] = obj[ch];
-                });
-                return extended;
-            }
-        });
-    parser.setReadtable(baseReadtable, syn);
-    function setReadtable(readtableModule) {
-        var filename = resolveSync(readtableModule, { basedir: process.cwd() });
-        var readtable = require(filename);
-        parser.setReadtable(require(filename));
-    }
-    function currentReadtable() {
-        return parser.currentReadtable();
     }
     function loadNodeModule(root, moduleName, options) {
         options = options || {};
@@ -270,11 +230,8 @@
         loadedMacros.push(loadNodeModule(process.cwd(), relative_file));
     }
     exports$2.expand = expand;
-    exports$2.expandSyntax = expandSyntax;
     exports$2.parse = parse;
     exports$2.compile = compile;
-    exports$2.setReadtable = setReadtable;
-    exports$2.currentReadtable = currentReadtable;
     exports$2.loadModule = expandModule;
     exports$2.loadNodeModule = loadNodeModule;
     exports$2.loadedMacros = loadedMacros;

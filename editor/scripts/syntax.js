@@ -269,7 +269,7 @@
             return syntaxFromToken(token);
         });
     }
-    // ([...CSyntax], Syntax) -> [...CSyntax])
+    // ([...CSyntax], Str) -> [...CSyntax])
     function joinSyntax(tojoin, punc) {
         if (tojoin.length === 0) {
             return [];
@@ -278,11 +278,11 @@
             return tojoin;
         }
         return _.reduce(_.rest(tojoin, 1), function (acc, join) {
-            acc.push(cloneSyntax(punc), join);
+            acc.push(makePunc(punc, join), join);
             return acc;
         }, [_.first(tojoin)]);
     }
-    // ([...[...CSyntax]], Syntax) -> [...CSyntax]
+    // ([...[...CSyntax]], Str) -> [...CSyntax]
     function joinSyntaxArray(tojoin, punc) {
         if (tojoin.length === 0) {
             return [];
@@ -291,17 +291,14 @@
             return _.flatten(tojoin, true);
         }
         return _.reduce(_.rest(tojoin, 1), function (acc, join) {
-            acc.push(cloneSyntax(punc));
+            acc.push(makePunc(punc, _.first(join)));
             Array.prototype.push.apply(acc, join);
             return acc;
         }, _.first(tojoin));
     }
-    function cloneSyntax(stx) {
-        return syntaxFromToken(_.clone(stx.token), stx);
-    }
     function cloneSyntaxArray(arr) {
         return arr.map(function (stx) {
-            var o = cloneSyntax(stx);
+            var o = syntaxFromToken(_.clone(stx.token), stx);
             if (o.token.type === parser.Token.Delimiter) {
                 o.token.inner = cloneSyntaxArray(o.token.inner);
             }
@@ -330,18 +327,8 @@
             return '[' + err.name + '] ' + err.message;
         }
         var token = err.stx.token;
-        var lineNumber = _.find([
-                token.sm_startLineNumber,
-                token.sm_lineNumber,
-                token.startLineNumber,
-                token.lineNumber
-            ], _.isNumber);
-        var lineStart = _.find([
-                token.sm_startLineStart,
-                token.sm_lineStart,
-                token.startLineStart,
-                token.lineStart
-            ], _.isNumber);
+        var lineNumber = token.sm_startLineNumber || token.sm_lineNumber || token.startLineNumber || token.lineNumber;
+        var lineStart = token.sm_startLineStart || token.sm_lineStart || token.startLineStart || token.lineStart;
         var start = (token.sm_startRange || token.sm_range || token.startRange || token.range)[0];
         var offset = start - lineStart;
         var line = '';
@@ -420,13 +407,8 @@
     exports$2.syntaxFromToken = syntaxFromToken;
     exports$2.tokensToSyntax = tokensToSyntax;
     exports$2.syntaxToTokens = syntaxToTokens;
-    exports$2.isSyntax = function (obj) {
-        obj = Array.isArray(obj) ? obj[0] : obj;
-        return obj instanceof Syntax;
-    };
     exports$2.joinSyntax = joinSyntax;
     exports$2.joinSyntaxArray = joinSyntaxArray;
-    exports$2.cloneSyntax = cloneSyntax;
     exports$2.cloneSyntaxArray = cloneSyntaxArray;
     exports$2.prettyPrint = prettyPrint;
     exports$2.MacroSyntaxError = MacroSyntaxError;
