@@ -189,7 +189,8 @@ macro _letc {
 
 macro _loop_let {
   rule { ([$k $v $rest ...] $i $vals $sexprs ...) } => {
-    return (function ($k) {
+    return (function (v) {
+      _destr($k, v)
       _loop_let ([$rest ...] ($i+1) $vals $sexprs ...)
     }($vals === undefined ? _sexpr $v : $vals[$i]));
   }

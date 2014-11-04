@@ -700,3 +700,48 @@ describe("str", function() {
 
 });
 
+describe("destructuring", function() {
+
+  it("should destructure nested immutable data structures in let forms", function(){
+    ki require core
+
+    var r = ki (let [[a b {c :c [d e] :d}] [1 2 {:c 3 :d [4 5]}]
+                     f 6]
+                 (eq [a b c d e] [1 2 3 4 5]))
+
+    expect(r).to.eql(true);
+  });
+
+  it("should destructure nested JS data structures in let forms", function(){
+    ki require core
+
+    var r = ki (let [[$ a b {$ c 'c' [$ d e] 'd'}] [$ 1 2 {$ c 3 d [$ 4 5]}]]
+                 (eq [a b c d e] [1 2 3 4 5]))
+
+    expect(r).to.eql(true);
+  });
+
+  it("should destructure nested immutable data structures in loop forms", function(){
+    ki require core
+
+    var r = ki (loop [[a b _] [1 2 3]]
+                 (if (gt a 3)
+                  (eq [a b] [4 5])
+                  (recur (map inc [a b 3]))))
+
+    expect(r).to.eql(true);
+  });
+
+  it("should destructure nested JS data structures in loop forms", function(){
+    ki require core
+
+    var r = ki (loop [[$ a b _] [$ 1 2 3]]
+                 (if (gt a 3)
+                  (eq [a b] [4 5])
+                  (recur (clj_to_js (map inc [a b 3])))))
+
+    expect(r).to.eql(true);
+  });
+
+
+});
