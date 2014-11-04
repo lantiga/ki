@@ -1211,6 +1211,7 @@
         } else {
             transformer = macroObj.fn;
         }
+        assert(typeof transformer === 'function', 'Macro transformer not bound for: ' + head.token.value);
         // create a new mark to be used for the input to
         // the macro
         var newMark = fresh();
@@ -1443,7 +1444,25 @@
                             var flsRes = enforest(condRight.slice(1), context);
                             var flsExpr = flsRes.result;
                             if (flsExpr.isExpr) {
-                                return step(ConditionalExpression.create(head, question, truExpr, colon, flsExpr), flsRes.rest, opCtx);
+                                // operators are combined before the ternary
+                                if (opCtx.prec >= 4) {
+                                    // ternary is like a operator with prec 4
+                                    var headResult = opCtx.combine(head);
+                                    var condTerm = ConditionalExpression.create(headResult.term, question, truExpr, colon, flsExpr);
+                                    if (opCtx.stack.length > 0) {
+                                        return step(condTerm, flsRes.rest, opCtx.stack[0]);
+                                    } else {
+                                        return {
+                                            result: condTerm,
+                                            rest: flsRes.rest,
+                                            prevStx: headResult.prevStx,
+                                            prevTerms: headResult.prevTerms
+                                        };
+                                    }
+                                } else {
+                                    var condTerm = ConditionalExpression.create(head, question, truExpr, colon, flsExpr);
+                                    return step(condTerm, flsRes.rest, opCtx);
+                                }
                             }
                         }
                     }
@@ -1695,7 +1714,7 @@
             }
             // Potentially an infix macro
             // This should only be invoked on runtime syntax terms
-            if (!head.isMacro && !head.isLetMacro && !head.isAnonMacro && !head.isOperatorDefinition && rest.length && nameInEnv(rest[0], rest.slice(1), context.env)) {
+            if (!head.isMacro && !head.isLetMacro && !head.isAnonMacro && !head.isOperatorDefinition && rest.length && nameInEnv(rest[0], rest.slice(1), context.env) && getMacroInEnv(rest[0], rest.slice(1), context.env).isOp === false) {
                 var infLeftTerm = opCtx.prevTerms[0] && opCtx.prevTerms[0].isPartial ? opCtx.prevTerms[0] : null;
                 var infTerm = PartialExpression.create(head.destruct(), infLeftTerm, function () {
                         return step(head, [], opCtx);
@@ -1903,6 +1922,7 @@
                 makeKeyword: syn.makeKeyword,
                 makePunc: syn.makePunc,
                 makeDelim: syn.makeDelim,
+                filename: context.filename,
                 require: function (id) {
                     if (context.requireModule) {
                         return context.requireModule(id, context.filename);
@@ -2279,7 +2299,8 @@
             if (paramSingleIdent) {
                 flatArgs = renamedParams[0];
             } else {
-                flatArgs = syn.makeDelim('()', joinSyntax(renamedParams, ','), term.params || null);
+                var puncCtx = term.params || null;
+                flatArgs = syn.makeDelim('()', joinSyntax(renamedParams, syn.makePunc(',', puncCtx)), puncCtx);
             }
             var expandedArgs = expand([flatArgs], bodyContext);
             assert(expandedArgs.length === 1, 'should only get back one result');
@@ -2397,7 +2418,7 @@
     }
     function makeTopLevelExpanderContext(options) {
         var requireModule = options ? options.requireModule : undefined;
-        var filename = options ? options.filename : undefined;
+        var filename = options && options.filename ? options.filename : '<anonymous module>';
         return makeExpanderContext({
             filename: filename,
             requireModule: requireModule
@@ -2406,7 +2427,9 @@
     // a hack to make the top level hygiene work out
     function expandTopLevel(stx, moduleContexts, options) {
         moduleContexts = moduleContexts || [];
-        maxExpands = (_.isNumber(options) ? options : options && options._maxExpands) || Infinity;
+        options = options || {};
+        options.flatten = options.flatten != null ? options.flatten : true;
+        maxExpands = options.maxExpands || Infinity;
         expandCount = 0;
         var context = makeTopLevelExpanderContext(options);
         var modBody = syn.makeDelim('{}', stx, null);
@@ -2420,7 +2443,8 @@
                 modBody
             ], context);
         res = res[0].destruct();
-        return flatten(res[0].token.inner);
+        res = res[0].token.inner;
+        return options.flatten ? flatten(res) : res;
     }
     function expandModule(stx, moduleContexts, options) {
         moduleContexts = moduleContexts || [];
@@ -2503,9 +2527,9 @@
                 acc.push(closeParen);
                 return acc;
             }
-            stx$2.token.sm_lineNumber = stx$2.token.sm_lineNumber ? stx$2.token.sm_lineNumber : stx$2.token.lineNumber;
-            stx$2.token.sm_lineStart = stx$2.token.sm_lineStart ? stx$2.token.sm_lineStart : stx$2.token.lineStart;
-            stx$2.token.sm_range = stx$2.token.sm_range ? stx$2.token.sm_range : stx$2.token.range;
+            stx$2.token.sm_lineNumber = typeof stx$2.token.sm_lineNumber != 'undefined' ? stx$2.token.sm_lineNumber : stx$2.token.lineNumber;
+            stx$2.token.sm_lineStart = typeof stx$2.token.sm_lineStart != 'undefined' ? stx$2.token.sm_lineStart : stx$2.token.lineStart;
+            stx$2.token.sm_range = typeof stx$2.token.sm_range != 'undefined' ? stx$2.token.sm_range : stx$2.token.range;
             acc.push(stx$2);
             return acc;
         }, []);
