@@ -26,6 +26,8 @@ let lt loop mod mul neq nil not ns or prn recur reset str sub swap threadf
 threadl truthy try use when when_not while 
 ```
 
+Plus destructuring and source maps.
+
 Take a look at the [tests](https://github.com/lantiga/ki/blob/master/test/core.js) to keep up with the latest additions.
 
 ## Examples
