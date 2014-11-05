@@ -29,6 +29,7 @@ title: ki reference
 [Namespaces](#namespaces)
 [Looping and recursion](#looping-and-recursion)
 [Local bindings](#local-bindings)
+[Destructuring](#destructuring)
 [Misc](#misc)
 
 <hr/>
@@ -593,6 +594,8 @@ Evaluates body with the supplied local bindings. If `recur` is reached, re-evalu
         "Ignition!"
         (recur (dec counter))))
 
+Loop supports destructuring, see `let`.
+
 ### Local bindings
 
 #### `let`
@@ -609,6 +612,26 @@ Evaluates body with the supplied local bindings. Returns the result of the last 
       (let [a (inc a)
             b 2]
         (add a b)))     => 4
+
+`let` supports destructuring of nested data structures, both immutable data structure 
+
+    (defn transformCircle [circle shift scale] 
+      (let [{[x y] :center r :radius} circle
+            [dx dy] shift]
+       {:center [(add x dx) (add y dy)] 
+        :radius (mul r scale)}))
+
+    (transformCircle {:point [10 20] :radius 5} [2 3] 10)
+
+and JS objects and arrays
+
+    (defn transformCircle [circle shift scale] 
+      (let [{$ [$ x y] :center r :radius} circle
+            [$ dx dy] shift]
+       {$ center [$ (add x dx) (add y dy)] 
+          radius (mul r scale)}))
+
+    (transformCircle {$ point [$ 10 20] radius 5} [$ 2 3] 10)
 
 #### `letc`
 
