@@ -252,7 +252,7 @@ macro _sexpr {
     $body ...
   }
 
-  rule { (fn $name [$args ...] $sexprs ...) } => {
+  rule { (fn $name:ident [$args ...] $sexprs ...) } => {
     function $name($args(,)...) {
       _return_sexprs ($sexprs ...)
     }
@@ -264,7 +264,7 @@ macro _sexpr {
     }
   }
 
-  rule { (fnth $name[$args ...] $sexprs ...) } => {
+  rule { (fnth $name:ident [$args ...] $sexprs ...) } => {
     function $name($args(,)...) {
       _return_sexprs ($sexprs ...)
     }.bind(this)
