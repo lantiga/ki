@@ -62,10 +62,10 @@ var fn2 = ki (fn [a b] (js a + b + 2))
 and you can use ki wherever in js code
 ```js
 function somefunc (a) {
-  ki (clj_to_js (filter (fn [el] (is_even el)) (range a))).forEach(function(el) {
+  ki (toJs (filter (fn [el] (isEven el)) (range a))).forEach(function(el) {
       console.log(el);
       });
-  return [0, 1, 2, 3, 4].filter(ki (fn [el] (is_even el)));
+  return [0, 1, 2, 3, 4].filter(ki (fn [el] (isEven el)));
 }
 console.log(somefunc(5));
 // => 0 

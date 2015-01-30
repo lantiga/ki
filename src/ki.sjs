@@ -411,11 +411,11 @@ macro _sexpr {
   }
 
   rule { (apply $fn $obj $args) } => {
-    _sexpr $fn.apply($obj,_sexpr (clj_to_js $args))
+    _sexpr $fn.apply($obj,_sexpr (toJs $args))
   }
 
   rule { (apply $fn $args) } => {
-    _sexpr $fn.apply(this,_sexpr (clj_to_js $args))
+    _sexpr $fn.apply(this,_sexpr (toJs $args))
   }
 
   rule { (bind $obj $fn) } => {
@@ -602,7 +602,7 @@ macro _sexpr {
   }
 
   rule { {$x ...} } => {
-    _sexpr (hash_map $x ...)
+    _sexpr (hashMap $x ...)
   }
 
   rule { $x } => { 
