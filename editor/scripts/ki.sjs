@@ -231,7 +231,7 @@ macro _sexpr {
   
   /*__macros__*/
 
-  rule { (ns $ns $sexprs ...) } => {
+  rule { (ns $ns:ident $sexprs ...) } => {
     _ns $ns $sexprs ...
   }
 
@@ -244,7 +244,7 @@ macro _sexpr {
     }())
   }
 
-  rule { (ns_get $ns $x) } => {
+  rule { (ns_get $ns:ident $x) } => {
     _sexpr _ki.namespaces.$ns.vars.$x
   }
 
@@ -252,7 +252,7 @@ macro _sexpr {
     $body ...
   }
 
-  rule { (fn $name [$args ...] $sexprs ...) } => {
+  rule { (fn $name:ident [$args ...] $sexprs ...) } => {
     function $name($args(,)...) {
       _return_sexprs ($sexprs ...)
     }
@@ -264,7 +264,7 @@ macro _sexpr {
     }
   }
 
-  rule { (fnth $name[$args ...] $sexprs ...) } => {
+  rule { (fnth $name:ident [$args ...] $sexprs ...) } => {
     function $name($args(,)...) {
       _return_sexprs ($sexprs ...)
     }.bind(this)
@@ -313,7 +313,7 @@ macro _sexpr {
     }.call(this))
   }
 
-  rule { (if_not $cond $sthen $selse) } => {
+  rule { (ifNot $cond $sthen $selse) } => {
     _sexpr (if (not $cond) $sthen $selse)
   }
 
@@ -326,7 +326,7 @@ macro _sexpr {
     }.call(this))
   }
 
-  rule { (when_not $cond $sthen) } => {
+  rule { (whenNot $cond $sthen) } => {
     _sexpr (when (not $cond) $sthen)
   }
 
@@ -397,32 +397,32 @@ macro _sexpr {
     {_ki_recur: true, _ki_vals: [_args ($args ...)]}
   }
 
-  rule { (def $n $sexpr) } => {
+  rule { (def $n:ident $sexpr) } => {
     _def $n $sexpr
   }
 
   // TODO: docstring
-  rule { (defn $n [$args ...] $sexprs ...) } => {
+  rule { (defn $n:ident [$args ...] $sexprs ...) } => {
     _sexpr (def $n (fn [$args ...] $sexprs ...))
   }
  
-  rule { (defn $n ([$args ...] $sexprs ...) $rest ...) } => {
+  rule { (defn $n:ident ([$args ...] $sexprs ...) $rest ...) } => {
     _sexpr (def $n (fn ([$args ...] $sexprs ...) $rest ...))
   }
 
   rule { (apply $fn $obj $args) } => {
-    _sexpr $fn.apply($obj,_sexpr (clj_to_js $args))
+    _sexpr $fn.apply($obj,_sexpr (toJs $args))
   }
 
   rule { (apply $fn $args) } => {
-    _sexpr $fn.apply(this,_sexpr (clj_to_js $args))
+    _sexpr $fn.apply(this,_sexpr (toJs $args))
   }
 
   rule { (bind $obj $fn) } => {
     _sexpr $fn.bind($obj)
   }
 
-  rule { (defmulti $n $dispatch_fn) } => {
+  rule { (defmulti $n:ident $dispatch_fn) } => {
     _sexpr 
        (defn $n [] 
         (js
@@ -439,7 +439,7 @@ macro _sexpr {
          }) nil)
   }
  
-  rule { (defmethod $n $dispatch_val [$args ...] $sexprs ...) } => {
+  rule { (defmethod $n:ident $dispatch_val [$args ...] $sexprs ...) } => {
     (function () {
       if ($n._ki_methods === undefined) {
         $n._ki_methods = [];
@@ -602,7 +602,7 @@ macro _sexpr {
   }
 
   rule { {$x ...} } => {
-    _sexpr (hash_map $x ...)
+    _sexpr (hashMap $x ...)
   }
 
   rule { $x } => { 
