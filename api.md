@@ -461,13 +461,13 @@ Returns the result of the evaluation of the second form if the evaluation of the
 
     (if (gt 2 1) "2 > 1" "1 > 2")   => "2 > 1"
 
-#### `if_not`
+#### `ifNot`
 
-##### `(if_not condition do_if_falsey do_if_truthy)`
+##### `(ifNot condition do_if_falsey do_if_truthy)`
 
 Returns the result of the evaluation of the second form if the evaluation of the first form is falsey, the result of the evaluation of the third form otherwise.
     
-    (if_not (gt 2 1) "not 2 > 1" "not 1 > 2")   => "not 1 > 2"
+    (ifNot (gt 2 1) "not 2 > 1" "not 1 > 2")   => "not 1 > 2"
 
 #### `when`
 
@@ -477,13 +477,13 @@ Returns the result of the evaluation of the second form if the evaluation of the
     
     (when (lt 2 1) "2 < 1")   => nil
 
-#### `when_not`
+#### `whenNot`
 
-##### `(when_not condition do_if_falsey)`
+##### `(whenNot condition do_if_falsey)`
 
 Returns the result of the evaluation of the second form if the evaluation of the first form is falsey, nil otherwise.
     
-    (when_not (gt 2 1) "2 > 1")   => nil
+    (whenNot (gt 2 1) "2 > 1")   => nil
 
 #### `cond`
 
@@ -590,7 +590,7 @@ Evaluates body with the supplied local bindings. If `recur` is reached, re-evalu
 
     (loop [counter 10]
       (prn counter)
-      (if_not (geq counter 0)
+      (ifNot (geq counter 0)
         "Ignition!"
         (recur (dec counter))))
 

@@ -64,7 +64,7 @@ In a more elaborate version global state could be moved to an atom using atom ca
     
      (defcomp CommentList
       (dom div {$ :className 'commentList'} 
-       (clj_to_js 
+       (toJs 
         (map (fn [comment i] 
               (Comment {$ :author (get comment :author)} (get comment :text))) 
          this.props.data))))
