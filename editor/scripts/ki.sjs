@@ -313,7 +313,7 @@ macro _sexpr {
     }.call(this))
   }
 
-  rule { (if_not $cond $sthen $selse) } => {
+  rule { (ifNot $cond $sthen $selse) } => {
     _sexpr (if (not $cond) $sthen $selse)
   }
 
@@ -326,7 +326,7 @@ macro _sexpr {
     }.call(this))
   }
 
-  rule { (when_not $cond $sthen) } => {
+  rule { (whenNot $cond $sthen) } => {
     _sexpr (when (not $cond) $sthen)
   }
 
