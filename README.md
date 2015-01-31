@@ -21,9 +21,9 @@ All of [mori](https://github.com/swannodette/mori).
 The following list of functions / special forms
 ```
 [] {} [$ ] {$ } add and apply atom bind catch chain cond def defmethod defmulti 
-defn deref div do doto eq falsey finally fn fnth geq gt if if_not js leq letc 
+defn deref div do doto eq falsey finally fn fnth geq gt if ifNot js leq letc 
 let lt loop mod mul neq nil not ns or prn recur reset str sub swap threadf 
-threadl truthy try use when when_not while 
+threadl truthy try use when whenNot while 
 ```
 
 Plus destructuring and source maps.
@@ -62,10 +62,10 @@ var fn2 = ki (fn [a b] (js a + b + 2))
 and you can use ki wherever in js code
 ```js
 function somefunc (a) {
-  ki (clj_to_js (filter (fn [el] (is_even el)) (range a))).forEach(function(el) {
+  ki (toJs (filter (fn [el] (isEven el)) (range a))).forEach(function(el) {
       console.log(el);
       });
-  return [0, 1, 2, 3, 4].filter(ki (fn [el] (is_even el)));
+  return [0, 1, 2, 3, 4].filter(ki (fn [el] (isEven el)));
 }
 console.log(somefunc(5));
 // => 0 

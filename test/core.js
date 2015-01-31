@@ -75,14 +75,14 @@ describe("lambdas", function() {
   it("should allow to define anonymous functions and use them in ki", function() {
     ki require core
     expect(
-      ki (clj_to_js (map (fn [x] (sum x 1)) (vector 1 2 3)))
+      ki (toJs (map (fn [x] (sum x 1)) (vector 1 2 3)))
       ).to.eql([2,3,4]);
   });
 
   it("should allow to define named anonymous functions and call them recursively", function() {
     ki require core
     expect(
-      ki (clj_to_js (map (fn foobar[x] (if (eq x 1) x (foobar (dec x)))) (vector 1 2 3)))
+      ki (toJs (map (fn foobar[x] (if (eq x 1) x (foobar (dec x)))) (vector 1 2 3)))
       ).to.eql([1,1,1]);
   });
 
@@ -93,14 +93,14 @@ describe("interoperability", function() {
   it("should allow to call js within ki", function() {
     ki require core
     expect(
-      ki (clj_to_js (map (js function(x) { return x + 1; }) (vector 1 2 3)))
+      ki (toJs (map (js function(x) { return x + 1; }) (vector 1 2 3)))
       ).to.eql([2,3,4]);
   });
 
   it("should allow to pass a ki fn as a js callback", function() {
     ki require core
     expect(
-      [1,2,3,4].map(ki (fn [x] (is_even x)))).to.eql([false,true,false,true]);
+      [1,2,3,4].map(ki (fn [x] (isEven x)))).to.eql([false,true,false,true]);
   });
 
 });
@@ -110,13 +110,13 @@ describe("local bindings and lexical scope", function() {
   it("should allow to define local bindings in a let form and ensure proper lexical scope", function() {
     ki require core
     expect(
-      ki (clj_to_js
+      ki (toJs
            (let [a 1 
                   b 2]
               (vector a b)))
       ).to.eql([1,2]);
     expect(
-      ki (clj_to_js
+      ki (toJs
            (let [a 0]
             (let [a (inc a) 
                    b (inc a)]
@@ -157,7 +157,7 @@ describe("namespaces", function() {
     ki (ns foo (def a 1));
     ki (ns bar (def a 2));
     expect(
-      ki (clj_to_js (vector a foo/a bar/a))
+      ki (toJs (vector a foo/a bar/a))
       ).to.eql([0,1,2]);
   });
 
@@ -168,7 +168,7 @@ describe("namespaces", function() {
     ki (ns foo 
         (use amodule bmodule));
     expect(
-      ki (clj_to_js (ns foo (vector (bar) (baz))))
+      ki (toJs (ns foo (vector (bar) (baz))))
       ).to.eql([1,2]);
   });
 
@@ -226,11 +226,11 @@ describe("flow control", function() {
   it("should allow branching consistently with definition of truthiness", function() {
     ki require core
     expect(ki (when (eq 1 1) "foo")).to.eql("foo");
-    expect(ki (when_not (eq 1 2) "foo")).to.eql("foo");
+    expect(ki (whenNot (eq 1 2) "foo")).to.eql("foo");
     expect(ki (if "" "foo" "bar")).to.eql("foo");
     expect(ki (if 0 "foo" "bar")).to.eql("foo");
     expect(ki (if nil "foo" "bar")).to.eql("bar");
-    expect(ki (if_not "" "foo" "bar")).to.eql("bar");
+    expect(ki (ifNot "" "foo" "bar")).to.eql("bar");
   });
 
   it("should have cond be consistent with definition of truthiness", function() {
@@ -266,19 +266,19 @@ describe("data literals", function() {
 
   it("should allow to create hash maps", function() {
     ki require core
-    expect(ki (eq {"a" 2 "b" 4} (hash_map "a" 2 "b" 4))).to.eql(true);
+    expect(ki (eq {"a" 2 "b" 4} (hashMap "a" 2 "b" 4))).to.eql(true);
   });
 
   it("should allow to create hash maps and evaluate forms", function() {
     ki require core
-    expect(ki (eq {"a" (inc 1) (str "b") 4} (hash_map "a" 2 "b" 4))).to.eql(true);
+    expect(ki (eq {"a" (inc 1) (str "b") 4} (hashMap "a" 2 "b" 4))).to.eql(true);
   });
 
   it("should allow to create deeply nested data structures", function() {
     ki require core
     expect(ki (eq {"a" [2 [3 4]] "b" {"c" 5 [6 7] "d"}} 
-                (hash_map "a" (vector 2 (vector 3 4)) 
-                          "b" (hash_map "c" 5 (vector 6 7) "d")))).to.eql(true);
+                (hashMap "a" (vector 2 (vector 3 4)) 
+                          "b" (hashMap "c" 5 (vector 6 7) "d")))).to.eql(true);
   });
 
   it("should allow to create js arrays", function() {
@@ -330,7 +330,7 @@ describe("keywords", function() {
     var mori = _ki.modules.mori;
     expect(ki (do [:a 1 :b {:c 2}])).to.eql(
       mori.vector(mori.keyword('a'),1,
-        mori.keyword('b'),mori.hash_map(mori.keyword('c'),2)));
+        mori.keyword('b'),mori.hashMap(mori.keyword('c'),2)));
   });
 
   //it("should evaluate to themselves", function() {
@@ -738,7 +738,7 @@ describe("destructuring", function() {
     var r = ki (loop [[$ a b _] [$ 1 2 3]]
                  (if (gt a 3)
                   (eq [a b] [4 5])
-                  (recur (clj_to_js (map inc [a b 3])))))
+                  (recur (toJs (map inc [a b 3])))))
 
     expect(r).to.eql(true);
   });

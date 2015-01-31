@@ -1,10 +1,13 @@
 {
   "name": "ki",
-  "version": "0.1.29",
+  "version": "0.2.0",
   "description": "lisp + mori, sweet.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/lantiga/ki.git"
+  },
+  "scripts": {
+    "test": "grunt test"
   },
   "keywords": [
     "lisp",
@@ -24,10 +27,11 @@
   "license": "MIT",
   "readmeFilename": "README.md",
   "dependencies": {
+    "grunt": "^0.4.5",
+    "mori": "~0.3.2",
+    "optimist": "~0.6.1",
     "sweet.js": "~0.7.2",
-    "mori": "~0.2.9",
-    "uglify-js": "~2.4.15",
-    "optimist": "~0.6.1"
+    "uglify-js": "~2.4.15"
   },
   "devDependencies": {
     "mocha": "~2.0.1",
