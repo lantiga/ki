@@ -98,6 +98,6 @@ To watch the file and have it automatically compiled whenever the file changes o
 
 MIT license http://www.opensource.org/licenses/mit-license.php/
 
-Copyright (C) 2014 Luca Antiga http://lantiga.github.io
+Copyright (C) 2014-2015 Luca Antiga http://lantiga.github.io
 
 
