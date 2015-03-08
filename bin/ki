@@ -6,5 +6,5 @@ var lib = path.join(path.dirname(fs.realpathSync(__filename)),'../lib');
 
 var ret = require(lib + '/ki_run').run();
 
-process.exit(ret);
+//process.exit(ret);
 
