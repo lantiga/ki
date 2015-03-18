@@ -410,14 +410,6 @@ macro _sexpr {
     _sexpr (def $n (fn ([$args ...] $sexprs ...) $rest ...))
   }
 
-  rule { (apply $fn $obj $args) } => {
-    _sexpr $fn.apply($obj,_sexpr (toJs $args))
-  }
-
-  rule { (apply $fn $args) } => {
-    _sexpr $fn.apply(this,_sexpr (toJs $args))
-  }
-
   rule { (bind $obj $fn) } => {
     _sexpr $fn.bind($obj)
   }
