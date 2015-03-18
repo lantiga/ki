@@ -291,9 +291,9 @@ Evaluates the supplied function with the elements of the provided collection as 
 
     (apply add [1 2 3])     => 6
 
-An extra argument can be provided after the function name as the object that will be bound to `this` upon invocation.
+##### `(apply func x y … coll)`
 
-    (apply add {$ a 1} [this.a 2 3])     => 6
+If arguments are provided after the function and before the collection, they are prepended to the arguments from the collection in the evaluation.
 
 #### `bind`
 
