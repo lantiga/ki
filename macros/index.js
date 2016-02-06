@@ -66,6 +66,21 @@ macro _x {
   }
 }
 
+macro _throw {
+  case { $ctx + } => {
+    throwSyntaxError('Unexpected token +','(+ ...) unsupported, use (add ...) instead',#{$ctx})
+  }
+  case { $ctx - } => {
+    throwSyntaxError('Unexpected token -','(- ...) unsupported, use (sub ...) instead',#{$ctx})
+  }
+  case { $ctx * } => {
+    throwSyntaxError('Unexpected token *','(* ...) unsupported, use (mul ...) instead',#{$ctx})
+  }
+  //case { $ctx / } => {
+  //  throwSyntaxError('Unexpected token /','(/ ...) unsupported, use (div ...) instead',#{$ctx})
+  //}
+}
+
 macro _ns {
   case { _ $ns $sexprs ... } => {
     var nsname = unwrapSyntax(#{$ns});
@@ -572,6 +587,22 @@ macro _sexpr {
       throw(_sexpr $x);
     }.call(this))
   }
+  
+  rule { (+ $args ...) } => {
+    _throw +
+  }
+
+  rule { (- $args ...) } => {
+    _throw -
+  }
+
+  rule { (* $args ...) } => {
+    _throw *
+  }
+
+  //rule { (/ $args ...) } => {
+  //  _throw /
+  //}
 
   rule { ($[.] $fn $obj $args ...) } => {
     _sexpr $obj . $fn (_args ($args ...))

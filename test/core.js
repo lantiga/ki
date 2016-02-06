@@ -743,5 +743,4 @@ describe("destructuring", function() {
     expect(r).to.eql(true);
   });
 
-
 });
